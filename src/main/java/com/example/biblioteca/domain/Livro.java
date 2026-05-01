@@ -19,18 +19,25 @@ public class Livro {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
+    @Column(nullable = false)
     private String titulo;
 
+    @Column(nullable = false)
     private String autor;
 
+    @Column(nullable = false, unique = true)
     private String isbn;
 
+    @Column(name = "data_publicacao", nullable = false)
     private LocalDate dataPublicacao;
 
+    @Column(nullable = false)
     private String categoria;
 
+    @Column(nullable = false)
     private boolean ativo;
 
+    @Column(nullable = false)
     private boolean disponivel;
 
     public void atualizar(com.example.biblioteca.dto.AtualizarLivroRequest request) {

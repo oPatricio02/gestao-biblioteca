@@ -9,7 +9,7 @@ public enum StatusEmprestimo {
     ATIVO(1),
     ATRASADO(2);
 
-    private int status;
+    private final int status;
 
     StatusEmprestimo(int status) {
         this.status = status;
