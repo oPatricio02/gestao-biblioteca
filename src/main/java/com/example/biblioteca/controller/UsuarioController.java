@@ -4,6 +4,7 @@ import com.example.biblioteca.dto.AtualizarUsuarioRequest;
 import com.example.biblioteca.dto.CriarUsuarioRequest;
 import com.example.biblioteca.dto.UsuarioResponse;
 import com.example.biblioteca.dto.ObterUsuarioResponse;
+import com.example.biblioteca.services.LivroService;
 import com.example.biblioteca.services.UsuarioService;
 import jakarta.websocket.server.PathParam;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +22,7 @@ import java.util.UUID;
 public class UsuarioController {
 
     private final UsuarioService usuarioService;
-    private final com.example.biblioteca.services.LivroService livroService;
+    private final LivroService livroService;
 
     @PostMapping
     ResponseEntity<UsuarioResponse> create(@Validated @RequestBody CriarUsuarioRequest request){
