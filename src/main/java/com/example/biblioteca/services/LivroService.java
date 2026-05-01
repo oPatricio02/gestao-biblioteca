@@ -1,12 +1,69 @@
 package com.example.biblioteca.services;
 
+import com.example.biblioteca.domain.Livro;
+import com.example.biblioteca.dto.AtualizarLivroRequest;
+import com.example.biblioteca.dto.CriarLivroRequest;
+import com.example.biblioteca.dto.LivroResponse;
 import com.example.biblioteca.repository.LivroRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class LivroService {
 
     private final LivroRepository livroRepository;
+
+    public LivroResponse criar(CriarLivroRequest request) {
+        Livro livro = Livro.builder()
+                .titulo(request.titulo())
+                .autor(request.autor())
+                .isbn(request.isbn())
+                .dataPublicacao(request.dataPublicacao())
+                .categoria(request.categoria())
+                .ativo(true)
+                .disponivel(true)
+                .build();
+
+        return new LivroResponse(livroRepository.save(livro));
+    }
+
+    public List<LivroResponse> listar() {
+        return livroRepository.findAllByAtivoTrue().stream()
+                .map(LivroResponse::new)
+                .collect(Collectors.toList());
+    }
+
+    public ResponseEntity<LivroResponse> obter(UUID id) {
+        return livroRepository.findByIdAndAtivoTrue(id)
+                .map(livro -> ResponseEntity.ok(new LivroResponse(livro)))
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    public void deletar(UUID id) {
+        livroRepository.findByIdAndAtivoTrue(id).ifPresent(livro -> {
+            livro.setAtivo(false);
+            livroRepository.save(livro);
+        });
+    }
+
+    public ResponseEntity<LivroResponse> alterar(AtualizarLivroRequest request) {
+        Optional<Livro> livroOpt = livroRepository.findByIdAndAtivoTrue(request.id());
+
+        if (livroOpt.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        Livro livro = livroOpt.get();
+        livro.atualizar(request);
+        livroRepository.save(livro);
+
+        return ResponseEntity.ok(new LivroResponse(livro));
+    }
 }

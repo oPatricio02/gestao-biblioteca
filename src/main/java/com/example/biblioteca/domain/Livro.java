@@ -1,10 +1,7 @@
 package com.example.biblioteca.domain;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDate;
 import java.util.UUID;
@@ -14,6 +11,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @Getter
 @Setter
+@Builder
 @Table(name = "livros")
 public class Livro {
 
@@ -34,4 +32,22 @@ public class Livro {
     private boolean ativo;
 
     private boolean disponivel;
+
+    public void atualizar(com.example.biblioteca.dto.AtualizarLivroRequest request) {
+        if (request.titulo() != null) {
+            this.titulo = request.titulo();
+        }
+        if (request.autor() != null) {
+            this.autor = request.autor();
+        }
+        if (request.isbn() != null) {
+            this.isbn = request.isbn();
+        }
+        if (request.dataPublicacao() != null) {
+            this.dataPublicacao = request.dataPublicacao();
+        }
+        if (request.categoria() != null) {
+            this.categoria = request.categoria();
+        }
+    }
 }
