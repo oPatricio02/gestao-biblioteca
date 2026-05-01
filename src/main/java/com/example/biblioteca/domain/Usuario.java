@@ -1,10 +1,8 @@
 package com.example.biblioteca.domain;
 
+import com.example.biblioteca.dto.AtualizarUsuarioRequest;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -14,6 +12,7 @@ import java.util.UUID;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 @Table(name = "usuarios")
 public class Usuario {
 
@@ -30,4 +29,16 @@ public class Usuario {
     private String telefone;
 
     private boolean ativo;
+
+    public void atualizar(AtualizarUsuarioRequest atualizar){
+        if(atualizar.email() != null){
+            this.setEmail(atualizar.email());
+        }
+        if(atualizar.nome() != null){
+            this.setNome(atualizar.nome());
+        }
+        if(atualizar.telefone() != null){
+            this.setTelefone(atualizar.telefone());
+        }
+    }
 }
