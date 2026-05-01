@@ -35,6 +35,19 @@ class UsuarioValidacaoTest {
     }
 
     @Test
+    void deveFalharQuandoEmailNaoPossuiDominioCompleto() {
+        CriarUsuarioRequest requestComEmailSemPonto = new CriarUsuarioRequest("Andrey", "andrey@teste", "11999999999");
+        
+        Set<ConstraintViolation<CriarUsuarioRequest>> violations = validator.validate(requestComEmailSemPonto);
+        
+        assertFalse(violations.isEmpty(), "Deveria falhar pois o e-mail 'andrey@teste' não possui uma extensão de domínio válida (ex: .com)");
+        
+        boolean encontrouErroDeEmail = violations.stream()
+                .anyMatch(v -> v.getPropertyPath().toString().equals("email"));
+        assertTrue(encontrouErroDeEmail, "O erro deve ser no campo email");
+    }
+
+    @Test
     void devePassarQuandoDtoEhValido() {
         CriarUsuarioRequest requestValido = new CriarUsuarioRequest("João Silva", "joao@email.com", "11999999999");
         

@@ -25,7 +25,7 @@ public class Usuario {
     @Column(nullable = false)
     private String nome;
 
-    @Email
+    @Email(regexp = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}$")
     @Column(nullable = false, unique = true)
     private String email;
 

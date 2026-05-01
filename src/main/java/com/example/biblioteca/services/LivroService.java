@@ -53,6 +53,16 @@ public class LivroService {
         });
     }
 
+    public Livro obterLivro(UUID id) {
+        return livroRepository.findByIdAndAtivoTrue(id)
+                .orElseThrow(() -> new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.NOT_FOUND, "Livro não encontrado ou inativo"));
+    }
+
+    public void atualizarDisponibilidade(Livro livro, boolean disponivel) {
+        livro.setDisponivel(disponivel);
+        livroRepository.save(livro);
+    }
+
     public ResponseEntity<LivroResponse> alterar(AtualizarLivroRequest request) {
         Optional<Livro> livroOpt = livroRepository.findByIdAndAtivoTrue(request.id());
 

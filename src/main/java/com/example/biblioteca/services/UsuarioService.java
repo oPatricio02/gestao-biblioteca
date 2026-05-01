@@ -15,9 +15,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import static java.util.Objects.isNull;
-import static java.util.Objects.nonNull;
-
 @Service
 @RequiredArgsConstructor
 public class UsuarioService {
@@ -52,6 +49,11 @@ public class UsuarioService {
             usuario.setAtivo(false);
             usuarioRepository.save(usuario);
         });
+    }
+
+    public Usuario obterUsuario(UUID id) {
+        return usuarioRepository.findByIdAndAtivoTrue(id)
+                .orElseThrow(() -> new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.NOT_FOUND, "Usuário não encontrado ou inativo"));
     }
 
     public ResponseEntity<ObterUsuarioResponse> alterar(AtualizarUsuarioRequest request) {
