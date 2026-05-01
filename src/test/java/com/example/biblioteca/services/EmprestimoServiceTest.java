@@ -18,6 +18,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -46,12 +47,10 @@ class EmprestimoServiceTest {
         Usuario usuario = new Usuario(usuarioId, "João", "joao@email.com", null, "11999999999", true);
         Livro livro = new Livro(livroId, "O Hobbit", "Tolkien", "1234", LocalDate.now(), "Fantasia", true, true);
         
-        CriarEmprestimoRequest request = new CriarEmprestimoRequest(usuarioId, livroId, LocalDate.now().plusDays(7));
+        CriarEmprestimoRequest request = new CriarEmprestimoRequest(usuarioId, livroId, null, LocalDate.now().plusDays(7));
         
         when(usuarioService.obterUsuario(usuarioId)).thenReturn(usuario);
         when(livroService.obterLivro(livroId)).thenReturn(livro);
-        lenient().when(emprestimoRepository.existsByLivroIdAndStatus(livroId, StatusEmprestimo.ATIVO)).thenReturn(false);
-        lenient().when(emprestimoRepository.existsByLivroIdAndStatus(livroId, StatusEmprestimo.ATRASADO)).thenReturn(false);
 
         Emprestimo emprestimoSalvo = Emprestimo.builder()
                 .id(UUID.randomUUID())
@@ -76,7 +75,7 @@ class EmprestimoServiceTest {
 
     @Test
     void deveFalharAoCriarEmprestimoQuandoUsuarioNaoEncontrado() {
-        CriarEmprestimoRequest request = new CriarEmprestimoRequest(UUID.randomUUID(), UUID.randomUUID(), LocalDate.now().plusDays(7));
+        CriarEmprestimoRequest request = new CriarEmprestimoRequest(UUID.randomUUID(), UUID.randomUUID(), null, LocalDate.now().plusDays(7));
         
         when(usuarioService.obterUsuario(request.usuarioId())).thenThrow(new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuário não encontrado"));
 
@@ -95,7 +94,7 @@ class EmprestimoServiceTest {
         Usuario usuario = new Usuario(usuarioId, "João", "joao@email.com", null, "11999999999", true);
         Livro livro = new Livro(livroId, "O Hobbit", "Tolkien", "1234", LocalDate.now(), "Fantasia", true, false);
         
-        CriarEmprestimoRequest request = new CriarEmprestimoRequest(usuarioId, livroId, LocalDate.now().plusDays(7));
+        CriarEmprestimoRequest request = new CriarEmprestimoRequest(usuarioId, livroId, null, LocalDate.now().plusDays(7));
         
         when(usuarioService.obterUsuario(usuarioId)).thenReturn(usuario);
         when(livroService.obterLivro(livroId)).thenReturn(livro);
@@ -105,28 +104,6 @@ class EmprestimoServiceTest {
         assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
         assert exception.getReason() != null;
         assertTrue(exception.getReason().contains("já está emprestado"));
-    }
-
-    @Test
-    void deveFalharAoCriarEmprestimoQuandoLivroPossuiEmprestimoAtivo() {
-        UUID usuarioId = UUID.randomUUID();
-        UUID livroId = UUID.randomUUID();
-        
-        Usuario usuario = new Usuario(usuarioId, "João", "joao@email.com", null, "11999999999", true);
-        Livro livro = new Livro(livroId, "O Hobbit", "Tolkien", "1234", LocalDate.now(), "Fantasia", true, true); 
-        
-        CriarEmprestimoRequest request = new CriarEmprestimoRequest(usuarioId, livroId, LocalDate.now().plusDays(7));
-        
-        when(usuarioService.obterUsuario(usuarioId)).thenReturn(usuario);
-        when(livroService.obterLivro(livroId)).thenReturn(livro);
-
-        lenient().when(emprestimoRepository.existsByLivroIdAndStatus(livroId, StatusEmprestimo.ATIVO)).thenReturn(true);
-
-        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> emprestimoService.criar(request));
-
-        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
-        assert exception.getReason() != null;
-        assertTrue(exception.getReason().contains("empréstimo em andamento"));
     }
 
     @Test
@@ -150,5 +127,24 @@ class EmprestimoServiceTest {
 
         verify(livroService, times(1)).atualizarDisponibilidade(livro, true);
         verify(emprestimoRepository, times(1)).save(emprestimo);
+    }
+
+    @Test
+    void deveAtualizarEmprestimosAtrasados() {
+        Livro livro = new Livro(UUID.randomUUID(), "O Hobbit", "Tolkien", "1234", LocalDate.now(), "Fantasia", true, false);
+        Usuario usuario = new Usuario(UUID.randomUUID(), "João", "joao@email.com", null, "11999999999", true);
+        
+        Emprestimo emp1 = new Emprestimo(UUID.randomUUID(), usuario, livro, LocalDate.now().minusDays(10), LocalDate.now().minusDays(1), StatusEmprestimo.ATIVO);
+        Emprestimo emp2 = new Emprestimo(UUID.randomUUID(), usuario, livro, LocalDate.now().minusDays(5), LocalDate.now().minusDays(2), StatusEmprestimo.ATIVO);
+        
+        List<Emprestimo> emprestimos = List.of(emp1, emp2);
+        
+        when(emprestimoRepository.findByStatusAndDataDevolucaoBefore(eq(StatusEmprestimo.ATIVO), any(LocalDate.class))).thenReturn(emprestimos);
+
+        emprestimoService.atualizarEmprestimosAtrasados();
+
+        assertEquals(StatusEmprestimo.ATRASADO, emp1.getStatus());
+        assertEquals(StatusEmprestimo.ATRASADO, emp2.getStatus());
+        verify(emprestimoRepository, times(1)).saveAll(emprestimos);
     }
 }

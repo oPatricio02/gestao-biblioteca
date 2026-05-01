@@ -3,7 +3,6 @@ package com.example.biblioteca.domain;
 import com.example.biblioteca.dto.AtualizarEmprestimoRequest;
 import com.example.biblioteca.enums.StatusEmprestimo;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.PastOrPresent;
 import lombok.*;
 
 import java.time.LocalDate;
@@ -30,7 +29,6 @@ public class Emprestimo {
     @JoinColumn(name = "livro_id", nullable = false)
     private Livro livro;
 
-    @PastOrPresent
     @Column(name = "data_emprestimo", nullable = false)
     private LocalDate dataEmprestimo;
 

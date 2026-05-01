@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import org.springframework.scheduling.annotation.Scheduled;
 
 @Service
 @RequiredArgsConstructor
@@ -28,6 +29,17 @@ public class EmprestimoService {
     private final UsuarioService usuarioService;
     private final LivroService livroService;
 
+    @Scheduled(cron = "0 0 0 * * ?", zone = "America/Sao_Paulo")
+    public void atualizarEmprestimosAtrasados() {
+        List<Emprestimo> emprestimosAtrasados = emprestimoRepository.findByStatusAndDataDevolucaoBefore(StatusEmprestimo.ATIVO, LocalDate.now());
+        
+        emprestimosAtrasados.forEach(emprestimo -> emprestimo.setStatus(StatusEmprestimo.ATRASADO));
+
+        if (!emprestimosAtrasados.isEmpty()) {
+            emprestimoRepository.saveAll(emprestimosAtrasados);
+        }
+    }
+
     public ResponseEntity<EmprestimoResponse> criar(CriarEmprestimoRequest request) {
         Usuario usuario = usuarioService.obterUsuario(request.usuarioId());
         Livro livro = livroService.obterLivro(request.livroId());
@@ -36,15 +48,10 @@ public class EmprestimoService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "O livro já está emprestado e não está disponível");
         }
 
-        if (emprestimoRepository.existsByLivroIdAndStatus(livro.getId(), StatusEmprestimo.ATIVO) || 
-            emprestimoRepository.existsByLivroIdAndStatus(livro.getId(), StatusEmprestimo.ATRASADO)) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "O livro possui um empréstimo em andamento");
-        }
-
         Emprestimo emprestimo = Emprestimo.builder()
                 .usuario(usuario)
                 .livro(livro)
-                .dataEmprestimo(LocalDate.now())
+                .dataEmprestimo(request.dataEmprestimo() != null ? request.dataEmprestimo() : LocalDate.now())
                 .dataDevolucao(request.dataDevolucao())
                 .status(StatusEmprestimo.ATIVO)
                 .build();
