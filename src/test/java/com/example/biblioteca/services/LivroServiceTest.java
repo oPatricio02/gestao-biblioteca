@@ -105,4 +105,19 @@ class LivroServiceTest {
         assertEquals("Titulo Atualizado", livro.getTitulo());
         verify(livroRepository, times(1)).save(livro);
     }
+
+    @Test
+    void testRecomendarLivrosParaUsuario() {
+        UUID usuarioId = UUID.randomUUID();
+        Livro livro1 = new Livro(UUID.randomUUID(), "Titulo 1", "Autor 1", "ISBN 1", LocalDate.now(), "Ficção", true, true);
+        Livro livro2 = new Livro(UUID.randomUUID(), "Titulo 2", "Autor 2", "ISBN 2", LocalDate.now(), "Ficção", true, true);
+        
+        when(livroRepository.recomendarLivrosParaUsuario(usuarioId)).thenReturn(List.of(livro1, livro2));
+
+        List<LivroResponse> recomendacoes = livroService.recomendarLivrosParaUsuario(usuarioId);
+
+        assertFalse(recomendacoes.isEmpty());
+        assertEquals(2, recomendacoes.size());
+        verify(livroRepository, times(1)).recomendarLivrosParaUsuario(usuarioId);
+    }
 }

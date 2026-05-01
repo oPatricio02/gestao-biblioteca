@@ -21,6 +21,7 @@ import java.util.UUID;
 public class UsuarioController {
 
     private final UsuarioService usuarioService;
+    private final com.example.biblioteca.services.LivroService livroService;
 
     @PostMapping
     ResponseEntity<UsuarioResponse> create(@Validated @RequestBody CriarUsuarioRequest request){
@@ -36,6 +37,11 @@ public class UsuarioController {
     @GetMapping("/{id}")
     ResponseEntity<ObterUsuarioResponse> obter(@PathVariable("id") UUID id){
         return usuarioService.obter(id);
+    }
+
+    @GetMapping("/{id}/recomendacoes")
+    ResponseEntity<List<com.example.biblioteca.dto.LivroResponse>> recomendarLivros(@PathVariable("id") UUID id){
+        return ResponseEntity.ok(livroService.recomendarLivrosParaUsuario(id));
     }
 
     @DeleteMapping("/{id}")

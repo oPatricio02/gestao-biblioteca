@@ -14,4 +14,12 @@ public interface LivroRepository extends JpaRepository<Livro, UUID> {
     List<Livro> findAllByAtivoTrue();
 
     Optional<Livro> findByIdAndAtivoTrue(UUID id);
+
+    @org.springframework.data.jpa.repository.Query(
+        "SELECT l FROM Livro l " +
+        "WHERE l.ativo = true AND l.disponivel = true " +
+        "AND l.categoria IN (SELECT DISTINCT el.categoria FROM Emprestimo e JOIN e.livro el WHERE e.usuario.id = :usuarioId) " +
+        "AND l.id NOT IN (SELECT e.livro.id FROM Emprestimo e WHERE e.usuario.id = :usuarioId)"
+    )
+    List<Livro> recomendarLivrosParaUsuario(@org.springframework.data.repository.query.Param("usuarioId") UUID usuarioId);
 }

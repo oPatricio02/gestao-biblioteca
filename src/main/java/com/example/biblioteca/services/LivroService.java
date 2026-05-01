@@ -40,6 +40,12 @@ public class LivroService {
                 .collect(Collectors.toList());
     }
 
+    public List<LivroResponse> recomendarLivrosParaUsuario(UUID usuarioId) {
+        return livroRepository.recomendarLivrosParaUsuario(usuarioId).stream()
+                .map(LivroResponse::new)
+                .collect(Collectors.toList());
+    }
+
     public ResponseEntity<LivroResponse> obter(UUID id) {
         return livroRepository.findByIdAndAtivoTrue(id)
                 .map(livro -> ResponseEntity.ok(new LivroResponse(livro)))
