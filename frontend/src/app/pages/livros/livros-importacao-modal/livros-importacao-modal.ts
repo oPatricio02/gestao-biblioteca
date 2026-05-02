@@ -1,7 +1,7 @@
 import { Component, EventEmitter, inject, Output, signal, computed } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { GoogleBooksService, GoogleBookItem } from '../../../services/google-books.service';
+import { GoogleBooksService, LivroExternoDto } from '../../../services/google-books.service';
 import { LivroService } from '../../../services/livro.service';
 import { CriarLivroRequest } from '../../../models/livro.model';
 
@@ -23,7 +23,7 @@ export class LivrosImportacaoModalComponent {
   loading = signal(false);
   importing = signal(false);
   error = signal('');
-  results = signal<GoogleBookItem[]>([]);
+  results = signal<LivroExternoDto[]>([]);
   
   selectedBookIds = signal<Set<string>>(new Set());
 
@@ -45,7 +45,7 @@ export class LivrosImportacaoModalComponent {
     this.results.set([]);
     this.selectedBookIds.set(new Set());
 
-    this.googleBooksService.buscarLivros(term, 0, 20).subscribe({
+    this.googleBooksService.buscarLivros(term).subscribe({
       next: (items) => {
         this.results.set(items);
         this.loading.set(false);
@@ -78,34 +78,12 @@ export class LivrosImportacaoModalComponent {
     return this.selectedBookIds().has(bookId);
   }
 
-  getThumbnail(item: GoogleBookItem): string {
-    return item.volumeInfo.imageLinks?.thumbnail || 
-           item.volumeInfo.imageLinks?.smallThumbnail || 
-           'assets/placeholder-book.png';
+  getThumbnail(item: LivroExternoDto): string {
+    return item.thumbnailUrl || 'assets/placeholder-book.png';
   }
 
-  getAuthor(item: GoogleBookItem): string {
-    return item.volumeInfo.authors?.join(', ') || 'Autor Desconhecido';
-  }
-
-  getIsbn(item: GoogleBookItem): string {
-    const identifiers = item.volumeInfo.industryIdentifiers || [];
-    const isbn13 = identifiers.find(i => i.type === 'ISBN_13');
-    const isbn10 = identifiers.find(i => i.type === 'ISBN_10');
-    return (isbn13?.identifier || isbn10?.identifier || '0000000000000').replace(/[^0-9X]/gi, '');
-  }
-
-  getCategory(item: GoogleBookItem): string {
-    return item.volumeInfo.categories?.[0] || 'Geral';
-  }
-
-  getPublishedDate(item: GoogleBookItem): string {
-    const dateStr = item.volumeInfo.publishedDate;
-    if (!dateStr) return new Date().toISOString().split('T')[0];
-    
-    if (dateStr.length === 4) return `${dateStr}-01-01`;
-    if (dateStr.length === 7) return `${dateStr}-01`;
-    return dateStr;
+  getAuthor(item: LivroExternoDto): string {
+    return item.autores && item.autores.length > 0 ? item.autores.join(', ') : 'Autor Desconhecido';
   }
 
   importarSelecionados() {
@@ -117,11 +95,11 @@ export class LivrosImportacaoModalComponent {
     const selectedItems = this.results().filter(item => this.selectedBookIds().has(item.id));
     
     const requests: CriarLivroRequest[] = selectedItems.map(item => ({
-      titulo: item.volumeInfo.title || 'Título Desconhecido',
+      titulo: item.titulo,
       autor: this.getAuthor(item),
-      isbn: this.getIsbn(item),
-      categoria: this.getCategory(item),
-      dataPublicacao: this.getPublishedDate(item)
+      isbn: item.isbn,
+      categoria: item.categoria,
+      dataPublicacao: item.dataPublicacao
     }));
 
     this.livroService.criarEmLote(requests).subscribe({

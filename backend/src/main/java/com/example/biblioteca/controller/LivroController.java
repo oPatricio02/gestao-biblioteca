@@ -3,6 +3,8 @@ package com.example.biblioteca.controller;
 import com.example.biblioteca.dto.AtualizarLivroRequest;
 import com.example.biblioteca.dto.CriarLivroRequest;
 import com.example.biblioteca.dto.LivroResponse;
+import com.example.biblioteca.dto.googlebooks.LivroExternoDto;
+import com.example.biblioteca.services.GoogleBooksClient;
 import com.example.biblioteca.services.LivroService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -22,6 +24,7 @@ import java.util.UUID;
 public class LivroController {
 
     private final LivroService livroService;
+    private final GoogleBooksClient googleBooksClient;
 
     @PostMapping
     public ResponseEntity<LivroResponse> criar(@Validated @RequestBody CriarLivroRequest request) {
@@ -57,5 +60,10 @@ public class LivroController {
     @GetMapping("/buscar")
     public ResponseEntity<List<LivroResponse>> buscar(@RequestParam("titulo") String titulo) {
         return ResponseEntity.ok(livroService.buscarPorTitulo(titulo));
+    }
+
+    @GetMapping("/pesquisa-externa")
+    public ResponseEntity<List<LivroExternoDto>> pesquisaExterna(@RequestParam("titulo") String titulo) {
+        return ResponseEntity.ok(googleBooksClient.buscarLivros(titulo));
     }
 }

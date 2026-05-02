@@ -1,30 +1,16 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { environment } from '../environments/environment';
 
-export interface GoogleBooksVolumeInfo {
-  title: string;
-  authors?: string[];
-  publisher?: string;
-  publishedDate?: string;
-  description?: string;
-  industryIdentifiers?: { type: string; identifier: string }[];
-  categories?: string[];
-  imageLinks?: {
-    smallThumbnail?: string;
-    thumbnail?: string;
-  };
-}
-
-export interface GoogleBookItem {
+export interface LivroExternoDto {
   id: string;
-  volumeInfo: GoogleBooksVolumeInfo;
-}
-
-export interface GoogleBooksResponse {
-  items?: GoogleBookItem[];
-  totalItems: number;
+  titulo: string;
+  autores: string[];
+  isbn: string;
+  categoria: string;
+  dataPublicacao: string;
+  thumbnailUrl?: string;
 }
 
 @Injectable({
@@ -32,12 +18,10 @@ export interface GoogleBooksResponse {
 })
 export class GoogleBooksService {
   private http = inject(HttpClient);
-  private apiUrl = 'https://www.googleapis.com/books/v1/volumes';
+  private apiUrl = `${environment.apiUrl}/livros/pesquisa-externa`;
 
-  buscarLivros(termo: string, startIndex = 0, maxResults = 10): Observable<GoogleBookItem[]> {
-    const url = `${this.apiUrl}?q=${encodeURIComponent(termo)}&startIndex=${startIndex}&maxResults=${maxResults}`;
-    return this.http.get<GoogleBooksResponse>(url).pipe(
-      map(response => response.items || [])
-    );
+  buscarLivros(termo: string): Observable<LivroExternoDto[]> {
+    const params = new HttpParams().set('titulo', termo);
+    return this.http.get<LivroExternoDto[]>(this.apiUrl, { params });
   }
 }

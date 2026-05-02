@@ -1,11 +1,9 @@
 # Sistema de Gestão de Biblioteca 📚
 
-Este é o projeto final para o sistema de gestão de bibliotecas, composto por uma API REST em **Java (Spring Boot)** e um Frontend em **Angular**. O sistema gerencia usuários, livros e empréstimos, e conta também com um algoritmo de recomendação de leitura.
-
 ## 🚀 Tecnologias Utilizadas
 
-- **Backend:** Java 21, Spring Boot 3, Spring Data JPA, Hibernate Validator
-- **Frontend:** Angular 18+, TypeScript, HTML/CSS
+- **Backend:** Java 21, Spring Boot 4.0.6, Spring Data JPA, Hibernate Validator
+- **Frontend:** Angular 21.2, TypeScript, HTML/CSS
 - **Banco de Dados:** MySQL 8.0 (via Docker)
 - **Ferramentas:** Maven, Docker, Docker Compose, JUnit 5, Mockito
 
@@ -48,7 +46,10 @@ A API é a responsável por aplicar todas as regras de negócio de Usuários, Li
    ```bash
    ./mvnw spring-boot:run
    ```
+   > **⚠️ Importante:** Para utilizar a busca na API do Google Books sem restrição de quota, você deve gerar uma API Key gratuita no Google Cloud Console e inseri-la no arquivo `backend/src/main/resources/application.properties` na variável `api.key.google-book=`. Caso contrário, a busca retornará erro de "Too Many Requests" (Cota excedida).
+
 2. A API iniciará na porta padrão `8080`.
+   - Acesse a **Documentação Interativa (Swagger UI)** em: `http://localhost:8080/swagger-ui.html`
 3. Os testes unitários automatizados cobrem a lógica de negócio e podem ser rodados com:
    ```bash
    ./mvnw test
@@ -83,7 +84,9 @@ A interface gráfica consome a nossa API REST.
 3. **Regra de Empréstimos:** Validação estrita para não permitir que o mesmo livro tenha múltiplos empréstimos ativos simultaneamente; bloqueio e liberação do livro com base no status do empréstimo.
 4. **Recomendação de Livros:** Algoritmo que lê o histórico de empréstimos do usuário e sugere obras das mesmas categorias lidas (excluindo os que ele já leu).
 5. **Automação Diária:** Job Agendado (`@Scheduled`) no Spring que roda à meia-noite cobrando e atrasando empréstimos que já passaram do dia de devolução.
-6. **Cobertura de Testes Unitários:** 26 testes passando, utilizando JUnit 5 e Mockito cobrindo regras sensíveis da aplicação.
+6. **Cobertura de Testes Unitários:** Testes de serviços passando perfeitamente, utilizando JUnit 5 e Mockito cobrindo regras sensíveis da aplicação.
+7. **[Questão Bônus] Frontend Angular Moderno:** Todo o sistema foi envelopado em um SPA com Design Premium em modo claro e escuro.
+8. **[Questão Bônus] Integração Google Books API:** O backend possui um endpoint BFF que consulta a API do Google Books. O frontend consome essa API local permitindo buscar e adicionar livros reais com capa e ISBN na biblioteca em um clique.
 
 ---
 
@@ -92,3 +95,5 @@ A interface gráfica consome a nossa API REST.
 - **Controle de Estoque (Quantidades):** Implementar no modelo de Livros a propriedade "quantidade", para permitir múltiplos exemplares do mesmo livro. Consequentemente, a regra de negócio do empréstimo passará a subtrair/adicionar saldo do estoque em vez de depender apenas de uma flag booleana de "disponível", permitindo que vários usuários peguem emprestado a mesma obra ao mesmo tempo (caso haja cópias).
 
 - **Autenticação JWT com Spring Security:** Implementar autenticação e autorização com JWT para proteger os endpoints da API REST. 
+
+- **Envio de e-mails:** Implementar envio de e-mails para notificar usuários sobre empréstimos, devoluções e atrasos. 

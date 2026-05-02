@@ -74,16 +74,16 @@
             }
           </div>
           <div class="book-cover" [style.background-image]="'url(' + getThumbnail(item) + ')'">
-            @if (!item.volumeInfo.imageLinks) {
+            @if (!item.thumbnailUrl) {
             <span class="no-cover">Sem Capa</span>
             }
           </div>
           <div class="book-info">
-            <h4 class="book-title" [title]="item.volumeInfo.title">{{ item.volumeInfo.title }}</h4>
+            <h4 class="book-title" [title]="item.titulo">{{ item.titulo }}</h4>
             <p class="book-author">{{ getAuthor(item) }}</p>
             <div class="book-meta">
-              <span class="badge badge-neutral">{{ getCategory(item) }}</span>
-              <span class="book-year">{{ getPublishedDate(item) | slice:0:4 }}</span>
+              <span class="badge badge-neutral">{{ item.categoria }}</span>
+              <span class="book-year">{{ item.dataPublicacao | slice:0:4 }}</span>
             </div>
           </div>
         </div>
