@@ -62,10 +62,8 @@ public class EmprestimoService {
         return ResponseEntity.status(HttpStatus.CREATED).body(new EmprestimoResponse(salvo));
     }
 
-    public List<EmprestimoResponse> listar() {
-        return emprestimoRepository.findAll().stream()
-                .map(EmprestimoResponse::new)
-                .collect(Collectors.toList());
+    public org.springframework.data.domain.Page<EmprestimoResponse> listar(org.springframework.data.domain.Pageable pageable) {
+        return emprestimoRepository.findAll(pageable).map(EmprestimoResponse::new);
     }
 
     public ResponseEntity<EmprestimoResponse> obter(UUID id) {

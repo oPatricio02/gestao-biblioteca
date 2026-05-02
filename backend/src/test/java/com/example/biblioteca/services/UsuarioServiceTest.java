@@ -45,14 +45,17 @@ class UsuarioServiceTest {
 
     @Test
     void testListar() {
-        UsuarioResponse response = new UsuarioResponse(UUID.randomUUID(), "Teste Teste", "teste@teste.com");
-        when(usuarioRepository.findAllByAtivoTrue()).thenReturn(List.of(response));
+        Usuario user = new Usuario(UUID.randomUUID(), "John Doe", "john@example.com", null, "123456789", true);
+        org.springframework.data.domain.Page<Usuario> page = new org.springframework.data.domain.PageImpl<>(List.of(user));
+        org.springframework.data.domain.Pageable pageable = org.springframework.data.domain.PageRequest.of(0, 10);
 
-        List<UsuarioResponse> list = usuarioService.listar();
+        when(usuarioRepository.findAllByAtivoTrue(pageable)).thenReturn(page);
 
-        assertFalse(list.isEmpty());
-        assertEquals(1, list.size());
-        verify(usuarioRepository, times(1)).findAllByAtivoTrue();
+        org.springframework.data.domain.Page<UsuarioResponse> result = usuarioService.listar(pageable);
+
+        assertFalse(result.isEmpty());
+        assertEquals(1, result.getTotalElements());
+        verify(usuarioRepository, times(1)).findAllByAtivoTrue(pageable);
     }
 
     @Test

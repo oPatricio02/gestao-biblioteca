@@ -12,7 +12,7 @@ import java.util.UUID;
 @Repository
 public interface LivroRepository extends JpaRepository<Livro, UUID> {
 
-    List<Livro> findAllByAtivoTrue();
+    org.springframework.data.domain.Page<Livro> findAllByAtivoTrue(org.springframework.data.domain.Pageable pageable);
 
     Optional<Livro> findByIdAndAtivoTrue(UUID id);
 

@@ -6,8 +6,10 @@ import com.example.biblioteca.dto.UsuarioResponse;
 import com.example.biblioteca.dto.ObterUsuarioResponse;
 import com.example.biblioteca.services.LivroService;
 import com.example.biblioteca.services.UsuarioService;
-import jakarta.websocket.server.PathParam;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -31,8 +33,8 @@ public class UsuarioController {
     }
 
     @GetMapping
-    ResponseEntity<List<UsuarioResponse>> listar(){
-        return ResponseEntity.ok().body(usuarioService.listar());
+    ResponseEntity<Page<UsuarioResponse>> listar(@PageableDefault Pageable pageable){
+        return ResponseEntity.ok().body(usuarioService.listar(pageable));
     }
 
     @GetMapping("/{id}")

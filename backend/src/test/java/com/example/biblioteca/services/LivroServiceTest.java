@@ -47,13 +47,16 @@ class LivroServiceTest {
     @Test
     void testListar() {
         Livro livro = new Livro(UUID.randomUUID(), "Titulo", "Autor", "ISBN", LocalDate.now(), "Categoria", true, true);
-        when(livroRepository.findAllByAtivoTrue()).thenReturn(List.of(livro));
+        org.springframework.data.domain.Page<Livro> page = new org.springframework.data.domain.PageImpl<>(List.of(livro));
+        org.springframework.data.domain.Pageable pageable = org.springframework.data.domain.PageRequest.of(0, 10);
+        
+        when(livroRepository.findAllByAtivoTrue(pageable)).thenReturn(page);
 
-        List<LivroResponse> list = livroService.listar();
+        org.springframework.data.domain.Page<LivroResponse> result = livroService.listar(pageable);
 
-        assertFalse(list.isEmpty());
-        assertEquals(1, list.size());
-        verify(livroRepository, times(1)).findAllByAtivoTrue();
+        assertFalse(result.isEmpty());
+        assertEquals(1, result.getTotalElements());
+        verify(livroRepository, times(1)).findAllByAtivoTrue(pageable);
     }
 
     @Test

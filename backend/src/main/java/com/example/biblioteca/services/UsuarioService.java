@@ -34,8 +34,8 @@ public class UsuarioService {
     }
 
 
-    public List<UsuarioResponse> listar() {
-        return usuarioRepository.findAllByAtivoTrue();
+    public org.springframework.data.domain.Page<UsuarioResponse> listar(org.springframework.data.domain.Pageable pageable) {
+        return usuarioRepository.findAllByAtivoTrue(pageable).map(UsuarioResponse::new);
     }
 
     public ResponseEntity<ObterUsuarioResponse> obter(UUID id) {

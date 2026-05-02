@@ -5,6 +5,9 @@ import com.example.biblioteca.dto.CriarEmprestimoRequest;
 import com.example.biblioteca.dto.EmprestimoResponse;
 import com.example.biblioteca.services.EmprestimoService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -25,8 +28,8 @@ public class EmprestimoController {
     }
 
     @GetMapping
-    public ResponseEntity<List<EmprestimoResponse>> listar() {
-        return ResponseEntity.ok(emprestimoService.listar());
+    public ResponseEntity<Page<EmprestimoResponse>> listar(@PageableDefault Pageable pageable) {
+        return ResponseEntity.ok(emprestimoService.listar(pageable));
     }
 
     @GetMapping("/{id}")

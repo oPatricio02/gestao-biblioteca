@@ -5,12 +5,14 @@ import com.example.biblioteca.dto.CriarLivroRequest;
 import com.example.biblioteca.dto.LivroResponse;
 import com.example.biblioteca.services.LivroService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -26,8 +28,8 @@ public class LivroController {
     }
 
     @GetMapping
-    public ResponseEntity<List<LivroResponse>> listar() {
-        return ResponseEntity.ok(livroService.listar());
+    public ResponseEntity<Page<LivroResponse>> listar(@PageableDefault Pageable pageable) {
+        return ResponseEntity.ok(livroService.listar(pageable));
     }
 
     @GetMapping("/{id}")

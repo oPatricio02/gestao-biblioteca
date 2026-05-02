@@ -14,5 +14,5 @@ public interface UsuarioRepository extends JpaRepository<Usuario, UUID> {
     
     Optional<Usuario> findByIdAndAtivoTrue(UUID id);
 
-    List<UsuarioResponse> findAllByAtivoTrue();
+    org.springframework.data.domain.Page<Usuario> findAllByAtivoTrue(org.springframework.data.domain.Pageable pageable);
 }

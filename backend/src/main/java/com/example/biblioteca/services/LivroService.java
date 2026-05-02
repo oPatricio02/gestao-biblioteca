@@ -34,10 +34,8 @@ public class LivroService {
         return new LivroResponse(livroRepository.save(livro));
     }
 
-    public List<LivroResponse> listar() {
-        return livroRepository.findAllByAtivoTrue().stream()
-                .map(LivroResponse::new)
-                .collect(Collectors.toList());
+    public org.springframework.data.domain.Page<LivroResponse> listar(org.springframework.data.domain.Pageable pageable) {
+        return livroRepository.findAllByAtivoTrue(pageable).map(LivroResponse::new);
     }
 
     public List<LivroResponse> recomendarLivrosParaUsuario(UUID usuarioId) {
