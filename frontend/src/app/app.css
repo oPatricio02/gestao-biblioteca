@@ -1,7 +1,53 @@
 .main-content {
   margin-left: var(--sidebar-width);
   min-height: 100vh;
-  position: relative;
+  background-color: var(--bg-body);
+  transition: margin-left var(--transition-base) ease;
+}
+
+.main-content.main-desktop-collapsed {
+  margin-left: 64px;
+}
+
+.mobile-header {
+  display: none;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 20px;
+  background: var(--bg-sidebar);
+  border-bottom: 1px solid var(--border-subtle);
+  position: sticky;
+  top: 0;
+  z-index: 40;
+}
+
+.mobile-header .brand-name {
+  font-size: 1.1rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, var(--primary-400), var(--primary-600));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.mobile-overlay {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .mobile-header {
+    display: flex;
+  }
+
+  .mobile-overlay {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(2, 6, 23, 0.6);
+    backdrop-filter: blur(4px);
+    z-index: 45;
+    animation: fadeIn var(--transition-fast) ease;
+  }
 }
 
 @media (max-width: 768px) {

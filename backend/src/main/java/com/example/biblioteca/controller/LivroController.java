@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -49,7 +50,7 @@ public class LivroController {
     }
 
     @GetMapping("/buscar")
-    public ResponseEntity<java.util.List<LivroResponse>> buscar(@RequestParam("titulo") String titulo) {
+    public ResponseEntity<List<LivroResponse>> buscar(@RequestParam("titulo") String titulo) {
         return ResponseEntity.ok(livroService.buscarPorTitulo(titulo));
     }
 }

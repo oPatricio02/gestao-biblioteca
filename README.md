@@ -90,3 +90,5 @@ A interface gráfica consome a nossa API REST.
 ## 🚀 Futuras Melhorias
 
 - **Controle de Estoque (Quantidades):** Implementar no modelo de Livros a propriedade "quantidade", para permitir múltiplos exemplares do mesmo livro. Consequentemente, a regra de negócio do empréstimo passará a subtrair/adicionar saldo do estoque em vez de depender apenas de uma flag booleana de "disponível", permitindo que vários usuários peguem emprestado a mesma obra ao mesmo tempo (caso haja cópias).
+
+- **Autenticação JWT com Spring Security:** Implementar autenticação e autorização com JWT para proteger os endpoints da API REST. 

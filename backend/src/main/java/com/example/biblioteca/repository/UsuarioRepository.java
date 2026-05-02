@@ -1,7 +1,8 @@
 package com.example.biblioteca.repository;
 
 import com.example.biblioteca.domain.Usuario;
-import com.example.biblioteca.dto.UsuarioResponse;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -14,7 +15,7 @@ public interface UsuarioRepository extends JpaRepository<Usuario, UUID> {
     
     Optional<Usuario> findByIdAndAtivoTrue(UUID id);
 
-    org.springframework.data.domain.Page<Usuario> findAllByAtivoTrue(org.springframework.data.domain.Pageable pageable);
+    Page<Usuario> findAllByAtivoTrue(Pageable pageable);
 
     List<Usuario> findTop20ByNomeContainingIgnoreCaseAndAtivoTrue(String nome);
 

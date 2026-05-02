@@ -80,10 +80,7 @@ select.form-control {
   padding-right: 36px;
 }
 
-select.form-control option {
-  background: var(--slate-800);
-  color: var(--text-primary);
-}
+
 
 @media (max-width: 768px) {
   .form-row {

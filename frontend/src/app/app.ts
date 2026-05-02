@@ -1,6 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { SidebarComponent } from './components/sidebar/sidebar';
+import { LayoutService } from './services/layout.service';
 
 @Component({
   selector: 'app-root',
@@ -9,4 +10,6 @@ import { SidebarComponent } from './components/sidebar/sidebar';
   templateUrl: './app.html',
   styleUrl: './app.css'
 })
-export class App {}
+export class App {
+  layoutService = inject(LayoutService);
+}
