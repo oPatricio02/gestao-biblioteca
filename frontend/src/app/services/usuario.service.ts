@@ -44,4 +44,8 @@ export class UsuarioService {
     const params = new HttpParams().set('nome', nome);
     return this.http.get<ObterUsuarioResponse[]>(`${this.baseUrl}/buscar`, { params });
   }
+
+  recomendarLivros(id: string): Observable<any[]> {
+    return this.http.get<any[]>(`${this.baseUrl}/${id}/recomendacoes`);
+  }
 }

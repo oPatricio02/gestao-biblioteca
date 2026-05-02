@@ -3,12 +3,13 @@ import { UsuarioService } from '../../../services/usuario.service';
 import { UsuarioResponse, ObterUsuarioResponse } from '../../../models/usuario.model';
 import { Page } from '../../../models/page.model';
 import { UsuarioFormComponent } from '../usuario-form/usuario-form';
+import { RecomendacoesModalComponent } from '../recomendacoes-modal/recomendacoes-modal';
 import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-usuarios-list',
   standalone: true,
-  imports: [UsuarioFormComponent, FormsModule],
+  imports: [UsuarioFormComponent, RecomendacoesModalComponent, FormsModule],
   templateUrl: './usuarios-list.html',
   styleUrl: './usuarios-list.css'
 })
@@ -23,6 +24,10 @@ export class UsuariosListComponent implements OnInit {
   showDeleteConfirm = signal(false);
   deletingId = signal<string | null>(null);
   deletingNome = signal('');
+
+  showRecomendacoes = signal(false);
+  recomendacoesUsuarioId = signal('');
+  recomendacoesUsuarioNome = signal('');
 
   currentPage = signal(0);
   pageSize = signal(10);
@@ -136,6 +141,18 @@ export class UsuariosListComponent implements OnInit {
       wasEditing ? 'Usuário atualizado com sucesso!' : 'Usuário criado com sucesso!',
       'success'
     );
+  }
+
+  abrirRecomendacoes(usuario: UsuarioResponse) {
+    this.recomendacoesUsuarioId.set(usuario.id);
+    this.recomendacoesUsuarioNome.set(usuario.nome);
+    this.showRecomendacoes.set(true);
+  }
+
+  fecharRecomendacoes() {
+    this.showRecomendacoes.set(false);
+    this.recomendacoesUsuarioId.set('');
+    this.recomendacoesUsuarioNome.set('');
   }
 
   confirmarExclusao(usuario: UsuarioResponse) {

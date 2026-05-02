@@ -1,0 +1,69 @@
+<div class="modal-overlay" (click)="onOverlayClick($event)">
+  <div class="modal-content modal-lg">
+    <div class="modal-header">
+      <div>
+        <h2>Recomendações para {{ usuarioNome }}</h2>
+        <p class="modal-subtitle">Livros baseados nas leituras anteriores</p>
+      </div>
+      <button class="btn btn-ghost btn-icon" (click)="closed.emit()">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18 6 6 18"/>
+          <path d="m6 6 12 12"/>
+        </svg>
+      </button>
+    </div>
+
+    <div class="modal-body">
+      @if (loading()) {
+        <div class="state-container">
+          <div class="spinner"></div>
+          <p>Buscando recomendações no acervo...</p>
+        </div>
+      } @else if (error()) {
+        <div class="state-container error-state">
+          <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/>
+            <line x1="12" y1="8" x2="12" y2="12"/>
+            <line x1="12" y1="16" x2="12.01" y2="16"/>
+          </svg>
+          <h3>Ops, algo deu errado</h3>
+          <p>Não foi possível carregar as recomendações. Tente novamente mais tarde.</p>
+        </div>
+      } @else if (livros().length === 0) {
+        <div class="state-container empty-state">
+          <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/>
+            <path d="M8 11h8"/>
+            <path d="M8 7h6"/>
+          </svg>
+          <h3>Nenhuma recomendação no momento</h3>
+          <p>O usuário pode não ter histórico de leitura suficiente ou não há livros disponíveis nas suas categorias favoritas.</p>
+        </div>
+      } @else {
+        <div class="books-grid">
+          @for (livro of livros(); track livro.id) {
+            <div class="book-card">
+              <div class="book-cover">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/>
+                </svg>
+              </div>
+              <div class="book-info">
+                <h4 class="book-title">{{ livro.titulo }}</h4>
+                <p class="book-author">{{ livro.autor }}</p>
+                <div class="book-meta">
+                  <span class="badge badge-info">{{ livro.categoria }}</span>
+                  <span class="book-isbn">ISBN: {{ livro.isbn }}</span>
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+      }
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn btn-secondary" (click)="closed.emit()">Fechar</button>
+    </div>
+  </div>
+</div>
