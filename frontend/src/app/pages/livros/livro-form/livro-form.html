@@ -1,0 +1,93 @@
+<div class="modal-overlay" (click)="onOverlayClick($event)">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>{{ isEditing ? 'Editar Livro' : 'Novo Livro' }}</h2>
+      <button class="btn btn-ghost btn-icon" (click)="closed.emit()" id="btn-close-form">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18 6 6 18" />
+          <path d="m6 6 12 12" />
+        </svg>
+      </button>
+    </div>
+
+    @if (errorMessage()) {
+    <div class="form-alert">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10" />
+        <path d="M12 8v4" />
+        <path d="M12 16h.01" />
+      </svg>
+      {{ errorMessage() }}
+    </div>
+    }
+
+    <form [formGroup]="form" (ngSubmit)="onSubmit()">
+      <div class="form-grid">
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="titulo">Título *</label>
+            <input type="text" id="titulo" class="form-control" [class.is-invalid]="isInvalid('titulo')"
+              formControlName="titulo" placeholder="Título do livro" />
+            @if (isInvalid('titulo')) {
+            <span class="form-error">Título é obrigatório (mínimo 2 caracteres)</span>
+            }
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="autor">Autor *</label>
+            <input type="text" id="autor" class="form-control" [class.is-invalid]="isInvalid('autor')"
+              formControlName="autor" placeholder="Nome do autor" />
+            @if (isInvalid('autor')) {
+            <span class="form-error">Autor é obrigatório (mínimo 2 caracteres)</span>
+            }
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="isbn">ISBN *</label>
+            <input type="text" id="isbn" class="form-control" [class.is-invalid]="isInvalid('isbn')"
+              formControlName="isbn" placeholder="978-0-00-000000-0" />
+            @if (isInvalid('isbn')) {
+            <span class="form-error">ISBN é obrigatório (mínimo 10 caracteres)</span>
+            }
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="dataPublicacao">Data de Publicação *</label>
+            <input type="date" id="dataPublicacao" class="form-control"
+              [class.is-invalid]="isInvalid('dataPublicacao')" formControlName="dataPublicacao" />
+            @if (isInvalid('dataPublicacao')) {
+            <span class="form-error">Data de publicação é obrigatória</span>
+            }
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="categoria">Categoria *</label>
+          <input type="text" id="categoria" class="form-control" [class.is-invalid]="isInvalid('categoria')"
+            formControlName="categoria" placeholder="Ex: Romance, Ficção, Tecnologia..." />
+          @if (isInvalid('categoria')) {
+          <span class="form-error">Selecione uma categoria</span>
+          }
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closed.emit()" id="btn-cancel-form">
+          Cancelar
+        </button>
+        <button type="submit" class="btn btn-primary" [disabled]="submitting()" id="btn-submit-form">
+          @if (submitting()) {
+          <div class="spinner" style="width:16px; height:16px; border-width:2px;"></div>
+          Salvando...
+          } @else {
+          {{ isEditing ? 'Salvar Alterações' : 'Cadastrar Livro' }}
+          }
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

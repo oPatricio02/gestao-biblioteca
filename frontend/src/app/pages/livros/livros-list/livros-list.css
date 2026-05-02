@@ -1,0 +1,127 @@
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.book-cell {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.book-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-sm);
+  background: linear-gradient(135deg, var(--primary-700), var(--primary-500));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.2);
+}
+
+.book-title {
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.book-autor {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+.book-isbn {
+  color: var(--text-tertiary);
+  font-size: 0.8rem;
+  font-family: 'Courier New', monospace;
+  letter-spacing: 0.03em;
+}
+
+.book-date {
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.badge-success {
+  background: var(--success-soft);
+  color: var(--success);
+}
+
+.badge-warning {
+  background: var(--warning-soft);
+  color: var(--warning);
+}
+
+.badge-info {
+  background: var(--info-soft);
+  color: var(--info);
+}
+
+.btn-icon-danger:hover {
+  background: rgba(239, 68, 68, 0.1) !important;
+  color: var(--danger) !important;
+}
+
+.btn-icon-danger:hover svg {
+  color: var(--danger);
+}
+
+.table-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 4px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.result-count {
+  font-size: 0.8rem;
+  color: var(--text-tertiary);
+}
+
+.pagination {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.btn-page {
+  min-width: 36px;
+  justify-content: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.btn-page-active {
+  background: rgba(99, 102, 241, 0.15) !important;
+  color: var(--primary-400) !important;
+  font-weight: 600;
+}
+
+.pagination .btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.confirm-icon-wrapper {
+  margin-bottom: 16px;
+  display: flex;
+  justify-content: center;
+}
+
+@media (max-width: 768px) {
+  .header-actions {
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+  }
+
+  .table-footer {
+    flex-direction: column;
+    align-items: center;
+  }
+}
