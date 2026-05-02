@@ -22,6 +22,10 @@ public class UsuarioService {
     private final UsuarioRepository usuarioRepository;
 
     public UsuarioResponse criarUsuario(CriarUsuarioRequest request){
+        if (usuarioRepository.existsByEmail(request.email())) {
+            throw new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.CONFLICT, "E-mail já cadastrado");
+        }
+
         var user = Usuario.builder()
                 .nome(request.nome())
                 .email(request.email())
@@ -65,11 +69,23 @@ public class UsuarioService {
         }
 
         Usuario usuario = usuarioOpt.get();
+
+        if (request.email() != null && !request.email().equals(usuario.getEmail()) && usuarioRepository.existsByEmail(request.email())) {
+            throw new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.CONFLICT, "E-mail já cadastrado por outro usuário");
+        }
+
         usuario.atualizar(request);
         usuarioRepository.save(usuario);
 
         return ResponseEntity.ok(
                 new ObterUsuarioResponse(usuario)
         );
+    }
+
+    public List<ObterUsuarioResponse> buscarPorNome(String nome) {
+        return usuarioRepository.findTop20ByNomeContainingIgnoreCaseAndAtivoTrue(nome)
+                .stream()
+                .map(ObterUsuarioResponse::new)
+                .toList();
     }
 }

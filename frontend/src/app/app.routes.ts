@@ -2,6 +2,10 @@ import { Routes } from '@angular/router';
 
 export const routes: Routes = [
   {
+    path: 'emprestimos',
+    loadComponent: () => import('./pages/emprestimos/emprestimos-list/emprestimos-list').then(m => m.EmprestimosListComponent)
+  },
+  {
     path: '',
     redirectTo: 'usuarios',
     pathMatch: 'full'

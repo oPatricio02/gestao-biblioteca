@@ -49,7 +49,7 @@
           <div class="form-group">
             <label class="form-label" for="isbn">ISBN *</label>
             <input type="text" id="isbn" class="form-control" [class.is-invalid]="isInvalid('isbn')"
-              formControlName="isbn" placeholder="978-0-00-000000-0" />
+              formControlName="isbn" placeholder="978-0-00-000000-0" (input)="onIsbnInput($event)" maxlength="17" />
             @if (isInvalid('isbn')) {
             <span class="form-error">ISBN é obrigatório (mínimo 10 caracteres)</span>
             }

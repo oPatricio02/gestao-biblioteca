@@ -30,6 +30,18 @@ class UsuarioServiceTest {
     private UsuarioService usuarioService;
 
     @Test
+    void testCriarUsuarioComEmailJaExistente() {
+        CriarUsuarioRequest request = new CriarUsuarioRequest("Teste", "teste@teste.com", "123456789");
+        when(usuarioRepository.existsByEmail("teste@teste.com")).thenReturn(true);
+
+        assertThrows(org.springframework.web.server.ResponseStatusException.class, () -> {
+            usuarioService.criarUsuario(request);
+        });
+
+        verify(usuarioRepository, never()).save(any(Usuario.class));
+    }
+
+    @Test
     void testCriarUsuario() {
         CriarUsuarioRequest request = new CriarUsuarioRequest("Teste Teste", "teste@teste.com", "123456789");
         Usuario usuario = new Usuario(UUID.randomUUID(), "Teste Teste", "teste@teste.com", null, "123456789", true);

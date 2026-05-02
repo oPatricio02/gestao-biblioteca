@@ -3,6 +3,7 @@ package com.example.biblioteca.repository;
 import com.example.biblioteca.domain.Livro;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -22,5 +23,7 @@ public interface LivroRepository extends JpaRepository<Livro, UUID> {
             AND l.categoria IN (SELECT DISTINCT el.categoria FROM Emprestimo e JOIN e.livro el WHERE e.usuario.id = :usuarioId)
             AND l.id NOT IN (SELECT e.livro.id FROM Emprestimo e WHERE e.usuario.id = :usuarioId)
     """)
-    List<Livro> recomendarLivrosParaUsuario(@org.springframework.data.repository.query.Param("usuarioId") UUID usuarioId);
+    List<Livro> recomendarLivrosParaUsuario(@Param("usuarioId") UUID usuarioId);
+
+    List<Livro> findTop20ByTituloContainingIgnoreCaseAndAtivoTrue(String titulo);
 }

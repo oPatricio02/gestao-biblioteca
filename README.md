@@ -13,7 +13,7 @@ Este é o projeto final para o sistema de gestão de bibliotecas, composto por u
 
 Para rodar este projeto na sua máquina, você vai precisar de:
 - **[Java 21](https://jdk.java.net/21/)** ou superior.
-- **[Node.js](https://nodejs.org/)** (v18 ou superior) para rodar o Angular.
+- **[Node.js](https://nodejs.org/)** (v22 ou superior) para rodar o Angular.
 - **[Docker](https://www.docker.com/)** e **Docker Compose** para o banco de dados.
 
 ## 📂 Estrutura do Repositório (Monorepo)
@@ -84,3 +84,9 @@ A interface gráfica consome a nossa API REST.
 4. **Recomendação de Livros:** Algoritmo que lê o histórico de empréstimos do usuário e sugere obras das mesmas categorias lidas (excluindo os que ele já leu).
 5. **Automação Diária:** Job Agendado (`@Scheduled`) no Spring que roda à meia-noite cobrando e atrasando empréstimos que já passaram do dia de devolução.
 6. **Cobertura de Testes Unitários:** 26 testes passando, utilizando JUnit 5 e Mockito cobrindo regras sensíveis da aplicação.
+
+---
+
+## 🚀 Futuras Melhorias
+
+- **Controle de Estoque (Quantidades):** Implementar no modelo de Livros a propriedade "quantidade", para permitir múltiplos exemplares do mesmo livro. Consequentemente, a regra de negócio do empréstimo passará a subtrair/adicionar saldo do estoque em vez de depender apenas de uma flag booleana de "disponível", permitindo que vários usuários peguem emprestado a mesma obra ao mesmo tempo (caso haja cópias).

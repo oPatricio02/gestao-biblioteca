@@ -47,4 +47,9 @@ public class LivroController {
     public ResponseEntity<LivroResponse> alterar(@Validated @RequestBody AtualizarLivroRequest request) {
         return livroService.alterar(request);
     }
+
+    @GetMapping("/buscar")
+    public ResponseEntity<java.util.List<LivroResponse>> buscar(@RequestParam("titulo") String titulo) {
+        return ResponseEntity.ok(livroService.buscarPorTitulo(titulo));
+    }
 }

@@ -80,4 +80,11 @@ public class LivroService {
 
         return ResponseEntity.ok(new LivroResponse(livro));
     }
+
+    public List<LivroResponse> buscarPorTitulo(String titulo) {
+        return livroRepository.findTop20ByTituloContainingIgnoreCaseAndAtivoTrue(titulo)
+                .stream()
+                .map(LivroResponse::new)
+                .toList();
+    }
 }

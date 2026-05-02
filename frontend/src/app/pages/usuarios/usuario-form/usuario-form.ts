@@ -30,8 +30,31 @@ export class UsuarioFormComponent implements OnInit {
     this.form = this.fb.group({
       nome: [this.usuario?.nome || '', [Validators.required, Validators.minLength(2)]],
       email: [this.usuario?.email || '', [Validators.required, Validators.email]],
-      telefone: [this.usuario?.telefone || '', [Validators.required, Validators.minLength(8)]]
+      telefone: [this.formatPhone(this.usuario?.telefone || ''), [Validators.required, Validators.minLength(14)]]
     });
+  }
+
+  formatPhone(value: string): string {
+    if (!value) return '';
+    const cleaned = value.replace(/\D/g, '');
+    let formatted = cleaned;
+    if (cleaned.length > 0) {
+      formatted = '(' + cleaned.substring(0, 2);
+    }
+    if (cleaned.length > 2) {
+      formatted += ') ' + cleaned.substring(2, 7);
+    }
+    if (cleaned.length > 7) {
+      formatted += '-' + cleaned.substring(7, 11);
+    }
+    return formatted;
+  }
+
+  onTelefoneInput(event: Event) {
+    const input = event.target as HTMLInputElement;
+    const formatted = this.formatPhone(input.value);
+    this.form.patchValue({ telefone: formatted }, { emitEvent: false });
+    input.value = formatted;
   }
 
   onSubmit() {
@@ -46,7 +69,8 @@ export class UsuarioFormComponent implements OnInit {
     if (this.isEditing) {
       const request = {
         id: this.usuario!.id,
-        ...this.form.value
+        ...this.form.value,
+        telefone: this.form.value.telefone.replace(/\D/g, '')
       };
       this.usuarioService.alterar(request).subscribe({
         next: () => {
@@ -59,7 +83,11 @@ export class UsuarioFormComponent implements OnInit {
         }
       });
     } else {
-      this.usuarioService.criar(this.form.value).subscribe({
+      const request = {
+        ...this.form.value,
+        telefone: this.form.value.telefone.replace(/\D/g, '')
+      };
+      this.usuarioService.criar(request).subscribe({
         next: () => {
           this.submitting.set(false);
           this.saved.emit();

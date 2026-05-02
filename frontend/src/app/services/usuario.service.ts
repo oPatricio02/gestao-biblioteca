@@ -39,4 +39,9 @@ export class UsuarioService {
   deletar(id: string): Observable<void> {
     return this.http.delete<void>(`${this.baseUrl}/${id}`);
   }
+
+  buscarPorNome(nome: string): Observable<ObterUsuarioResponse[]> {
+    const params = new HttpParams().set('nome', nome);
+    return this.http.get<ObterUsuarioResponse[]>(`${this.baseUrl}/buscar`, { params });
+  }
 }

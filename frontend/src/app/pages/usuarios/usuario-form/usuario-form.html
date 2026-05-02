@@ -62,6 +62,8 @@
             [class.is-invalid]="isInvalid('telefone')"
             formControlName="telefone"
             placeholder="(00) 00000-0000"
+            (input)="onTelefoneInput($event)"
+            maxlength="15"
           />
           @if (isInvalid('telefone')) {
             <span class="form-error">Telefone é obrigatório (mínimo 8 dígitos)</span>

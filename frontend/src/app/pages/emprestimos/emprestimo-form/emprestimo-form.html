@@ -1,0 +1,121 @@
+<div class="modal-overlay" (click)="onOverlayClick($event)">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>{{ isEditing ? 'Editar Empréstimo' : 'Novo Empréstimo' }}</h2>
+      <button class="btn btn-ghost btn-icon" (click)="closed.emit()">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18 6 6 18" />
+          <path d="m6 6 12 12" />
+        </svg>
+      </button>
+    </div>
+
+    @if (errorMessage()) {
+    <div class="form-alert">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10" />
+        <path d="M12 8v4" />
+        <path d="M12 16h.01" />
+      </svg>
+      {{ errorMessage() }}
+    </div>
+    }
+
+    <form [formGroup]="form" (ngSubmit)="onSubmit()">
+      <div class="form-grid">
+        
+        <div class="form-group autocomplete-container">
+          <label class="form-label">Usuário *</label>
+          <input type="text" class="form-control" [class.is-invalid]="isInvalid('usuarioId')"
+            formControlName="usuarioBusca" placeholder="Digite para buscar um usuário..."
+            (input)="buscarUsuarios($event)" (blur)="fecharDropdowns()" autocomplete="off" />
+          
+          @if (showUsuariosDropdown() && usuariosResult().length > 0) {
+          <div class="autocomplete-dropdown">
+            @for (u of usuariosResult(); track u.id) {
+            <div class="autocomplete-item" (click)="selecionarUsuario(u)">
+              <div class="autocomplete-title">{{ u.nome }}</div>
+              <div class="autocomplete-subtitle">{{ u.email }}</div>
+            </div>
+            }
+          </div>
+          }
+          
+          @if (isInvalid('usuarioId')) {
+          <span class="form-error">Selecione um usuário da lista</span>
+          }
+        </div>
+
+        <div class="form-group autocomplete-container">
+          <label class="form-label">Livro *</label>
+          <input type="text" class="form-control" [class.is-invalid]="isInvalid('livroId')"
+            formControlName="livroBusca" placeholder="Digite para buscar um livro..."
+            (input)="buscarLivros($event)" (blur)="fecharDropdowns()" autocomplete="off" />
+          
+          @if (showLivrosDropdown() && livrosResult().length > 0) {
+          <div class="autocomplete-dropdown">
+            @for (l of livrosResult(); track l.id) {
+            <div class="autocomplete-item" (click)="selecionarLivro(l)">
+              <div class="autocomplete-title">{{ l.titulo }}</div>
+              <div class="autocomplete-subtitle">{{ l.autor }} · {{ l.isbn }}</div>
+            </div>
+            }
+          </div>
+          }
+          
+          @if (isInvalid('livroId')) {
+          <span class="form-error">Selecione um livro da lista</span>
+          }
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Data Empréstimo *</label>
+            <input type="date" class="form-control" [class.is-invalid]="isInvalid('dataEmprestimo')"
+              formControlName="dataEmprestimo" />
+            @if (isInvalid('dataEmprestimo')) {
+            <span class="form-error">Data de empréstimo é obrigatória</span>
+            }
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Data Devolução *</label>
+            <input type="date" class="form-control" [class.is-invalid]="isInvalid('dataDevolucao')"
+              formControlName="dataDevolucao" />
+            @if (isInvalid('dataDevolucao')) {
+            <span class="form-error">Data de devolução é obrigatória</span>
+            }
+          </div>
+        </div>
+
+        @if (isEditing) {
+        <div class="form-group">
+          <label class="form-label">Status do Empréstimo *</label>
+          <select class="form-control" formControlName="status">
+            <option value="ATIVO">Ativo</option>
+            <option value="DEVOLVIDO">Devolvido</option>
+            <option value="ATRASADO">Atrasado</option>
+          </select>
+        </div>
+        }
+
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closed.emit()">
+          Cancelar
+        </button>
+        <button type="submit" class="btn btn-primary" [disabled]="submitting()">
+          @if (submitting()) {
+          <div class="spinner" style="width:16px; height:16px; border-width:2px;"></div>
+          Salvando...
+          } @else {
+          {{ isEditing ? 'Salvar Alterações' : 'Registrar Empréstimo' }}
+          }
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

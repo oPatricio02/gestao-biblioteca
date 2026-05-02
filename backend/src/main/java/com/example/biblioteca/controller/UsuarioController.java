@@ -58,4 +58,9 @@ public class UsuarioController {
         return usuarioService.alterar(request);
     }
 
+    @GetMapping("/buscar")
+    ResponseEntity<List<ObterUsuarioResponse>> buscar(@RequestParam("nome") String nome) {
+        return ResponseEntity.ok(usuarioService.buscarPorNome(nome));
+    }
+
 }

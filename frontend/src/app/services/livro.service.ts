@@ -38,4 +38,9 @@ export class LivroService {
   deletar(id: string): Observable<void> {
     return this.http.delete<void>(`${this.baseUrl}/${id}`);
   }
+
+  buscarPorTitulo(titulo: string): Observable<LivroResponse[]> {
+    const params = new HttpParams().set('titulo', titulo);
+    return this.http.get<LivroResponse[]>(`${this.baseUrl}/buscar`, { params });
+  }
 }

@@ -168,4 +168,26 @@ export class LivrosListComponent implements OnInit {
     this.toast.set({ message, type });
     setTimeout(() => this.toast.set(null), 3500);
   }
+
+  formatIsbn(value: string): string {
+    if (!value) return '';
+    let cleaned = value.replace(/[^\dX]/gi, '').toUpperCase();
+    
+    if (cleaned.startsWith('978') || cleaned.startsWith('979') || cleaned.length > 10) {
+      cleaned = cleaned.substring(0, 13);
+      let formatted = cleaned.substring(0, 3);
+      if (cleaned.length > 3) formatted += '-' + cleaned.substring(3, 4);
+      if (cleaned.length > 4) formatted += '-' + cleaned.substring(4, 6);
+      if (cleaned.length > 6) formatted += '-' + cleaned.substring(6, 12);
+      if (cleaned.length > 12) formatted += '-' + cleaned.substring(12, 13);
+      return formatted;
+    } else {
+      cleaned = cleaned.substring(0, 10);
+      let formatted = cleaned.substring(0, 1);
+      if (cleaned.length > 1) formatted += '-' + cleaned.substring(1, 3);
+      if (cleaned.length > 3) formatted += '-' + cleaned.substring(3, 9);
+      if (cleaned.length > 9) formatted += '-' + cleaned.substring(9, 10);
+      return formatted;
+    }
+  }
 }

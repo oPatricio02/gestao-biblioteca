@@ -15,4 +15,8 @@ public interface UsuarioRepository extends JpaRepository<Usuario, UUID> {
     Optional<Usuario> findByIdAndAtivoTrue(UUID id);
 
     org.springframework.data.domain.Page<Usuario> findAllByAtivoTrue(org.springframework.data.domain.Pageable pageable);
+
+    List<Usuario> findTop20ByNomeContainingIgnoreCaseAndAtivoTrue(String nome);
+
+    boolean existsByEmail(String email);
 }
