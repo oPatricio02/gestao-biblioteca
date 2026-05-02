@@ -10,6 +10,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 
 import java.time.LocalDate;
@@ -65,12 +69,12 @@ class LivroServiceTest {
     @Test
     void testListar() {
         Livro livro = new Livro(UUID.randomUUID(), "Titulo", "Autor", "ISBN", LocalDate.now(), "Categoria", true, true);
-        org.springframework.data.domain.Page<Livro> page = new org.springframework.data.domain.PageImpl<>(List.of(livro));
-        org.springframework.data.domain.Pageable pageable = org.springframework.data.domain.PageRequest.of(0, 10);
+        Page<Livro> page = new PageImpl<>(List.of(livro));
+        Pageable pageable = PageRequest.of(0, 10);
         
         when(livroRepository.findAllByAtivoTrue(pageable)).thenReturn(page);
 
-        org.springframework.data.domain.Page<LivroResponse> result = livroService.listar(pageable);
+        Page<LivroResponse> result = livroService.listar(pageable);
 
         assertFalse(result.isEmpty());
         assertEquals(1, result.getTotalElements());

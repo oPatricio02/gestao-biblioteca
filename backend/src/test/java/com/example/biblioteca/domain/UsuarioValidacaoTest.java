@@ -64,7 +64,7 @@ class UsuarioValidacaoTest {
                 .email("joao@email.com")
                 .telefone("11999999999")
                 .ativo(true)
-                .dataCadastro(LocalDateTime.now().plusDays(1)) // Data no futuro
+                .dataCadastro(LocalDateTime.now().plusDays(1))
                 .build();
 
         Set<ConstraintViolation<Usuario>> violations = validator.validate(usuario);
@@ -84,7 +84,7 @@ class UsuarioValidacaoTest {
                 .email("joao@email.com")
                 .telefone("11999999999")
                 .ativo(true)
-                .dataCadastro(LocalDateTime.now()) // Data atual
+                .dataCadastro(LocalDateTime.now())
                 .build();
 
         Set<ConstraintViolation<Usuario>> violations = validator.validate(usuario);

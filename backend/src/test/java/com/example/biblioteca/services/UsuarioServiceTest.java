@@ -10,7 +10,12 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Optional;
@@ -34,7 +39,7 @@ class UsuarioServiceTest {
         CriarUsuarioRequest request = new CriarUsuarioRequest("Teste", "teste@teste.com", "123456789");
         when(usuarioRepository.existsByEmail("teste@teste.com")).thenReturn(true);
 
-        assertThrows(org.springframework.web.server.ResponseStatusException.class, () -> {
+        ResponseStatusException responseStatusException = assertThrows(ResponseStatusException.class, () -> {
             usuarioService.criarUsuario(request);
         });
 
@@ -57,13 +62,13 @@ class UsuarioServiceTest {
 
     @Test
     void testListar() {
-        Usuario user = new Usuario(UUID.randomUUID(), "John Doe", "john@example.com", null, "123456789", true);
-        org.springframework.data.domain.Page<Usuario> page = new org.springframework.data.domain.PageImpl<>(List.of(user));
-        org.springframework.data.domain.Pageable pageable = org.springframework.data.domain.PageRequest.of(0, 10);
+        Usuario user = new Usuario(UUID.randomUUID(), "Teste Teste", "teste@teste.com", null, "123456789", true);
+        Page<Usuario> page = new PageImpl<>(List.of(user));
+        Pageable pageable = PageRequest.of(0, 10);
 
         when(usuarioRepository.findAllByAtivoTrue(pageable)).thenReturn(page);
 
-        org.springframework.data.domain.Page<UsuarioResponse> result = usuarioService.listar(pageable);
+        Page<UsuarioResponse> result = usuarioService.listar(pageable);
 
         assertFalse(result.isEmpty());
         assertEquals(1, result.getTotalElements());

@@ -9,8 +9,10 @@ import com.example.biblioteca.repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -25,7 +27,7 @@ public class UsuarioService {
 
     public UsuarioResponse criarUsuario(CriarUsuarioRequest request){
         if (usuarioRepository.existsByEmail(request.email())) {
-            throw new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.CONFLICT, "E-mail já cadastrado");
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "E-mail já cadastrado");
         }
 
         var user = Usuario.builder()
@@ -59,7 +61,7 @@ public class UsuarioService {
 
     public Usuario obterUsuario(UUID id) {
         return usuarioRepository.findByIdAndAtivoTrue(id)
-                .orElseThrow(() -> new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.NOT_FOUND, "Usuário não encontrado ou inativo"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuário não encontrado ou inativo"));
     }
 
     public ResponseEntity<ObterUsuarioResponse> alterar(AtualizarUsuarioRequest request) {
@@ -73,7 +75,7 @@ public class UsuarioService {
         Usuario usuario = usuarioOpt.get();
 
         if (request.email() != null && !request.email().equals(usuario.getEmail()) && usuarioRepository.existsByEmail(request.email())) {
-            throw new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.CONFLICT, "E-mail já cadastrado por outro usuário");
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "E-mail já cadastrado por outro usuário");
         }
 
         usuario.atualizar(request);

@@ -8,8 +8,10 @@ import com.example.biblioteca.repository.LivroRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Optional;
@@ -76,7 +78,7 @@ public class LivroService {
 
     public Livro obterLivro(UUID id) {
         return livroRepository.findByIdAndAtivoTrue(id)
-                .orElseThrow(() -> new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.NOT_FOUND, "Livro não encontrado ou inativo"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Livro não encontrado ou inativo"));
     }
 
     public void atualizarDisponibilidade(Livro livro, boolean disponivel) {
