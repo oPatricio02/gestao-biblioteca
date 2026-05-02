@@ -9,6 +9,8 @@ import com.example.biblioteca.dto.EmprestimoResponse;
 import com.example.biblioteca.enums.StatusEmprestimo;
 import com.example.biblioteca.repository.EmprestimoRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -61,7 +63,7 @@ public class EmprestimoService {
         return ResponseEntity.status(HttpStatus.CREATED).body(new EmprestimoResponse(salvo));
     }
 
-    public org.springframework.data.domain.Page<EmprestimoResponse> listar(org.springframework.data.domain.Pageable pageable) {
+    public Page<EmprestimoResponse> listar(Pageable pageable) {
         return emprestimoRepository.findAll(pageable).map(EmprestimoResponse::new);
     }
 

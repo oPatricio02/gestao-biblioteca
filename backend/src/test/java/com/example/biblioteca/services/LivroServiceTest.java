@@ -45,6 +45,24 @@ class LivroServiceTest {
     }
 
     @Test
+    void testCriarEmLote() {
+        CriarLivroRequest req1 = new CriarLivroRequest("T1", "A1", "I1", LocalDate.now(), "C1");
+        CriarLivroRequest req2 = new CriarLivroRequest("T2", "A2", "I2", LocalDate.now(), "C2");
+        Livro l1 = new Livro(UUID.randomUUID(), "T1", "A1", "I1", LocalDate.now(), "C1", true, true);
+        Livro l2 = new Livro(UUID.randomUUID(), "T2", "A2", "I2", LocalDate.now(), "C2", true, true);
+
+        when(livroRepository.saveAll(anyList())).thenReturn(List.of(l1, l2));
+
+        List<LivroResponse> response = livroService.criarEmLote(List.of(req1, req2));
+
+        assertNotNull(response);
+        assertEquals(2, response.size());
+        assertEquals("T1", response.get(0).titulo());
+        assertEquals("T2", response.get(1).titulo());
+        verify(livroRepository, times(1)).saveAll(anyList());
+    }
+
+    @Test
     void testListar() {
         Livro livro = new Livro(UUID.randomUUID(), "Titulo", "Autor", "ISBN", LocalDate.now(), "Categoria", true, true);
         org.springframework.data.domain.Page<Livro> page = new org.springframework.data.domain.PageImpl<>(List.of(livro));

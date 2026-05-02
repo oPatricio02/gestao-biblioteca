@@ -1,13 +1,17 @@
 import { Component, inject, OnInit, signal, computed } from '@angular/core';
+import { Subject } from 'rxjs';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { LivroService } from '../../../services/livro.service';
 import { LivroResponse } from '../../../models/livro.model';
 import { Page } from '../../../models/page.model';
 import { LivroFormComponent } from '../livro-form/livro-form';
+import { LivrosImportacaoModalComponent } from '../livros-importacao-modal/livros-importacao-modal';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-livros-list',
   standalone: true,
-  imports: [LivroFormComponent],
+  imports: [LivroFormComponent, LivrosImportacaoModalComponent, FormsModule],
   templateUrl: './livros-list.html',
   styleUrl: './livros-list.css'
 })
@@ -15,8 +19,10 @@ export class LivrosListComponent implements OnInit {
   private livroService = inject(LivroService);
 
   livros = signal<LivroResponse[]>([]);
+  searchTerm = signal('');
   loading = signal(false);
   showForm = signal(false);
+  showImportacao = signal(false);
   editingLivro = signal<LivroResponse | null>(null);
   showDeleteConfirm = signal(false);
   deletingId = signal<string | null>(null);
@@ -30,8 +36,8 @@ export class LivrosListComponent implements OnInit {
   isLast = signal(true);
 
   toast = signal<{ message: string; type: 'success' | 'error' } | null>(null);
-
-
+  
+  searchSubject = new Subject<string>();
 
   pages = computed(() => {
     const total = this.totalPages();
@@ -50,6 +56,19 @@ export class LivrosListComponent implements OnInit {
 
   ngOnInit() {
     this.carregarLivros();
+    
+    this.searchSubject.pipe(
+      debounceTime(400),
+      distinctUntilChanged()
+    ).subscribe(term => {
+      this.searchTerm.set(term);
+      if (term) {
+        this.buscarNoBackend(term);
+      } else {
+        this.currentPage.set(0);
+        this.carregarLivros();
+      }
+    });
   }
 
   carregarLivros() {
@@ -89,6 +108,30 @@ export class LivrosListComponent implements OnInit {
     }
   }
 
+  onSearch(event: Event) {
+    const value = (event.target as HTMLInputElement).value;
+    this.searchSubject.next(value.trim());
+  }
+
+  buscarNoBackend(term: string) {
+    this.loading.set(true);
+    this.livroService.buscarPorTitulo(term).subscribe({
+      next: (resultados) => {
+        this.livros.set(resultados);
+        this.totalElements.set(resultados.length);
+        this.totalPages.set(1);
+        this.isFirst.set(true);
+        this.isLast.set(true);
+        this.currentPage.set(0);
+        this.loading.set(false);
+      },
+      error: () => {
+        this.showToast('Erro ao buscar livros', 'error');
+        this.loading.set(false);
+      }
+    });
+  }
+
 
 
   abrirFormCriacao() {
@@ -114,6 +157,20 @@ export class LivrosListComponent implements OnInit {
   fecharForm() {
     this.showForm.set(false);
     this.editingLivro.set(null);
+  }
+
+  abrirImportacao() {
+    this.showImportacao.set(true);
+  }
+
+  fecharImportacao() {
+    this.showImportacao.set(false);
+  }
+
+  onImported() {
+    this.fecharImportacao();
+    this.carregarLivros();
+    this.showToast('Livros importados com sucesso!', 'success');
   }
 
   onFormSaved() {

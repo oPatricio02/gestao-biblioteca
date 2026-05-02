@@ -7,6 +7,8 @@ import com.example.biblioteca.dto.UsuarioResponse;
 import com.example.biblioteca.dto.ObterUsuarioResponse;
 import com.example.biblioteca.repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -38,7 +40,7 @@ public class UsuarioService {
     }
 
 
-    public org.springframework.data.domain.Page<UsuarioResponse> listar(org.springframework.data.domain.Pageable pageable) {
+    public Page<UsuarioResponse> listar(Pageable pageable) {
         return usuarioRepository.findAllByAtivoTrue(pageable).map(UsuarioResponse::new);
     }
 

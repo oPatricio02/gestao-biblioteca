@@ -6,6 +6,8 @@ import com.example.biblioteca.dto.CriarLivroRequest;
 import com.example.biblioteca.dto.LivroResponse;
 import com.example.biblioteca.repository.LivroRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -34,7 +36,22 @@ public class LivroService {
         return new LivroResponse(livroRepository.save(livro));
     }
 
-    public org.springframework.data.domain.Page<LivroResponse> listar(org.springframework.data.domain.Pageable pageable) {
+    public List<LivroResponse> criarEmLote(List<CriarLivroRequest> requests) {
+        List<Livro> livros = requests.stream().map(request -> Livro.builder()
+                .titulo(request.titulo())
+                .autor(request.autor())
+                .isbn(request.isbn())
+                .dataPublicacao(request.dataPublicacao())
+                .categoria(request.categoria())
+                .ativo(true)
+                .disponivel(true)
+                .build()).collect(Collectors.toList());
+
+        List<Livro> salvos = livroRepository.saveAll(livros);
+        return salvos.stream().map(LivroResponse::new).collect(Collectors.toList());
+    }
+
+    public Page<LivroResponse> listar(Pageable pageable) {
         return livroRepository.findAllByAtivoTrue(pageable).map(LivroResponse::new);
     }
 

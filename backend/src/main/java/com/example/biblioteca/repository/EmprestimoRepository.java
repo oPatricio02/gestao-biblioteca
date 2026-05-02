@@ -11,8 +11,6 @@ import java.util.UUID;
 
 @Repository
 public interface EmprestimoRepository extends JpaRepository<Emprestimo, UUID> {
-
-    boolean existsByLivroIdAndStatus(UUID livroId, StatusEmprestimo status);
     
     List<Emprestimo> findByStatusAndDataDevolucaoBefore(StatusEmprestimo status, LocalDate data);
 }

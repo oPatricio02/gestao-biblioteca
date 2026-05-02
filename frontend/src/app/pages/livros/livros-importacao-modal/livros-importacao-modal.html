@@ -1,0 +1,113 @@
+<div class="modal-overlay" (click)="onOverlayClick($event)">
+  <div class="modal-content importacao-modal">
+    <div class="modal-header">
+      <div class="header-titles">
+        <h2>Importar Livros</h2>
+        <span class="modal-subtitle">Buscar na base do Google Books</span>
+      </div>
+      <button class="btn btn-ghost btn-icon" (click)="closed.emit()">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18 6 6 18" />
+          <path d="m6 6 12 12" />
+        </svg>
+      </button>
+    </div>
+
+    @if (error()) {
+    <div class="form-alert">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10" />
+        <path d="M12 8v4" />
+        <path d="M12 16h.01" />
+      </svg>
+      {{ error() }}
+    </div>
+    }
+
+    <div class="search-bar">
+      <div class="search-input-wrapper">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+        <input type="text" class="form-control" placeholder="Digite o título, autor ou ISBN..." [ngModel]="searchTerm()"
+          (ngModelChange)="searchTerm.set($event)" (keydown)="onSearchKeydown($event)">
+      </div>
+      <button class="btn btn-primary search-btn" (click)="buscar()" [disabled]="loading()">
+        @if (loading()) {
+        <div class="spinner spinner-sm"></div>
+        } @else {
+        Buscar
+        }
+      </button>
+    </div>
+
+    <div class="results-container" [class.loading]="loading()">
+      @if (loading()) {
+      <div class="loading-state">
+        <div class="spinner"></div>
+        <p>Buscando no Google Books...</p>
+      </div>
+      } @else if (results().length === 0 && !error()) {
+      <div class="empty-state">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20" />
+          <path d="M8 7h6" />
+          <path d="M8 11h4" />
+        </svg>
+        <p>Busque por um livro para adicioná-lo à biblioteca.</p>
+      </div>
+      } @else {
+      <div class="book-grid">
+        @for (item of results(); track item.id) {
+        <div class="book-card" [class.selected]="isSelected(item.id)" (click)="toggleSelection(item.id)">
+          <div class="selection-indicator">
+            @if (isSelected(item.id)) {
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+            }
+          </div>
+          <div class="book-cover" [style.background-image]="'url(' + getThumbnail(item) + ')'">
+            @if (!item.volumeInfo.imageLinks) {
+            <span class="no-cover">Sem Capa</span>
+            }
+          </div>
+          <div class="book-info">
+            <h4 class="book-title" [title]="item.volumeInfo.title">{{ item.volumeInfo.title }}</h4>
+            <p class="book-author">{{ getAuthor(item) }}</p>
+            <div class="book-meta">
+              <span class="badge badge-neutral">{{ getCategory(item) }}</span>
+              <span class="book-year">{{ getPublishedDate(item) | slice:0:4 }}</span>
+            </div>
+          </div>
+        </div>
+        }
+      </div>
+      }
+    </div>
+
+    <div class="modal-footer import-footer">
+      <div class="selection-info">
+        @if (selectedCount() > 0) {
+        <span class="count-badge">{{ selectedCount() }}</span> livros selecionados
+        }
+      </div>
+      <div class="actions">
+        <button class="btn btn-ghost" (click)="closed.emit()">Cancelar</button>
+        <button class="btn btn-primary" [disabled]="!hasSelection() || importing()" (click)="importarSelecionados()">
+          @if (importing()) {
+          <div class="spinner spinner-sm"></div> Importando...
+          } @else {
+          Importar para a Biblioteca
+          }
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

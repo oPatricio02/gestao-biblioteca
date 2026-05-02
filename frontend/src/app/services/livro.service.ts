@@ -31,6 +31,10 @@ export class LivroService {
     return this.http.post<LivroResponse>(this.baseUrl, request);
   }
 
+  criarEmLote(livros: CriarLivroRequest[]): Observable<LivroResponse[]> {
+    return this.http.post<LivroResponse[]>(`${this.baseUrl}/lote`, livros);
+  }
+
   alterar(request: AtualizarLivroRequest): Observable<LivroResponse> {
     return this.http.patch<LivroResponse>(this.baseUrl, request);
   }

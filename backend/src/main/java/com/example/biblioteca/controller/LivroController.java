@@ -28,6 +28,11 @@ public class LivroController {
         return ResponseEntity.status(HttpStatus.CREATED).body(livroService.criar(request));
     }
 
+    @PostMapping("/lote")
+    public ResponseEntity<List<LivroResponse>> criarEmLote(@Validated @RequestBody List<CriarLivroRequest> requests) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(livroService.criarEmLote(requests));
+    }
+
     @GetMapping
     public ResponseEntity<Page<LivroResponse>> listar(@PageableDefault Pageable pageable) {
         return ResponseEntity.ok(livroService.listar(pageable));
