@@ -31,6 +31,9 @@ class UsuarioServiceTest {
     @Mock
     private UsuarioRepository usuarioRepository;
 
+    @Mock
+    private EmprestimoService emprestimoService;
+
     @InjectMocks
     private UsuarioService usuarioService;
 
@@ -103,11 +106,26 @@ class UsuarioServiceTest {
         UUID id = UUID.randomUUID();
         Usuario usuario = new Usuario(id, "Teste Teste", "teste@teste.com", null, "123456789", true);
         when(usuarioRepository.findByIdAndAtivoTrue(id)).thenReturn(Optional.of(usuario));
+        when(emprestimoService.usuarioPossuiEmprestimosAtivos(id)).thenReturn(false);
 
         usuarioService.deletar(id);
 
         assertFalse(usuario.isAtivo());
         verify(usuarioRepository, times(1)).save(usuario);
+    }
+
+    @Test
+    void testDeletarUsuarioComEmprestimoAtivo() {
+        UUID id = UUID.randomUUID();
+        Usuario usuario = new Usuario(id, "Teste Teste", "teste@teste.com", null, "123456789", true);
+        when(usuarioRepository.findByIdAndAtivoTrue(id)).thenReturn(Optional.of(usuario));
+        when(emprestimoService.usuarioPossuiEmprestimosAtivos(id)).thenReturn(true);
+
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> usuarioService.deletar(id));
+
+        assertEquals(HttpStatus.CONFLICT, exception.getStatusCode());
+        assertEquals("Usuário possui empréstimos ativos e não pode ser excluído", exception.getReason());
+        verify(usuarioRepository, never()).save(any(Usuario.class));
     }
 
     @Test

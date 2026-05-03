@@ -61,8 +61,12 @@ export class EmprestimoFormComponent implements OnInit {
     return date.substring(0, 10);
   }
 
-  private getTodayDate(): string {
-    return new Date().toISOString().substring(0, 10);
+  getTodayDate(): string {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
   }
 
   buscarUsuarios(event: Event) {

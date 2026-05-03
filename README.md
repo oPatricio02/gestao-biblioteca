@@ -11,7 +11,7 @@
 
 Para rodar este projeto na sua máquina, você vai precisar de:
 - **[Java 21](https://jdk.java.net/21/)** ou superior.
-- **[Node.js](https://nodejs.org/)** (v22 ou superior) para rodar o Angular.
+- **[Node.js](https://nodejs.org/)** `v22` para rodar o Angular.
 - **[Docker](https://www.docker.com/)** e **Docker Compose** para o banco de dados.
 
 ## 📂 Estrutura do Repositório (Monorepo)
@@ -65,15 +65,20 @@ A interface gráfica consome a nossa API REST.
    ```bash
    cd frontend
    ```
-2. Instale as dependências do Node.js:
+2. Garanta que você está usando `Node 22`:
+   ```bash
+   nvm use 22
+   ```
+   > Se você não usa `nvm`, instale uma versão `22.x` do Node.js antes de continuar.
+3. Instale as dependências do Node.js:
    ```bash
    npm install
    ```
-3. Inicie o servidor de desenvolvimento do Angular:
+4. Inicie o servidor de desenvolvimento do Angular:
    ```bash
    npm start
    ```
-4. Acesse a aplicação no seu navegador através de: `http://localhost:4200`
+5. Acesse a aplicação no seu navegador através de: `http://localhost:4200`
 
 ---
 

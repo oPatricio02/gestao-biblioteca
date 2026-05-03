@@ -13,8 +13,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -25,10 +27,13 @@ public class LivroService {
     private final LivroRepository livroRepository;
 
     public LivroResponse criar(CriarLivroRequest request) {
+        String isbnNormalizado = normalizarIsbn(request.isbn());
+        validarIsbnDuplicado(isbnNormalizado, null);
+
         Livro livro = Livro.builder()
                 .titulo(request.titulo())
                 .autor(request.autor())
-                .isbn(request.isbn())
+                .isbn(isbnNormalizado)
                 .dataPublicacao(request.dataPublicacao())
                 .categoria(request.categoria())
                 .ativo(true)
@@ -39,10 +44,12 @@ public class LivroService {
     }
 
     public List<LivroResponse> criarEmLote(List<CriarLivroRequest> requests) {
+        validarLoteDeIsbns(requests);
+
         List<Livro> livros = requests.stream().map(request -> Livro.builder()
                 .titulo(request.titulo())
                 .autor(request.autor())
-                .isbn(request.isbn())
+                .isbn(normalizarIsbn(request.isbn()))
                 .dataPublicacao(request.dataPublicacao())
                 .categoria(request.categoria())
                 .ativo(true)
@@ -71,6 +78,11 @@ public class LivroService {
 
     public void deletar(UUID id) {
         livroRepository.findByIdAndAtivoTrue(id).ifPresent(livro -> {
+            if (!livro.isDisponivel()) {
+                throw new ResponseStatusException(HttpStatus.CONFLICT,
+                        "Livro possui empréstimos ativos e não pode ser excluído");
+            }
+
             livro.setAtivo(false);
             livroRepository.save(livro);
         });
@@ -94,7 +106,16 @@ public class LivroService {
         }
 
         Livro livro = livroOpt.get();
+
+        if (request.isbn() != null) {
+            String isbnNormalizado = normalizarIsbn(request.isbn());
+            validarIsbnDuplicado(isbnNormalizado, livro.getId());
+        }
+
         livro.atualizar(request);
+        if (request.isbn() != null) {
+            livro.setIsbn(normalizarIsbn(request.isbn()));
+        }
         livroRepository.save(livro);
 
         return ResponseEntity.ok(new LivroResponse(livro));
@@ -105,5 +126,33 @@ public class LivroService {
                 .stream()
                 .map(LivroResponse::new)
                 .toList();
+    }
+
+    private void validarLoteDeIsbns(List<CriarLivroRequest> requests) {
+        Set<String> isbns = new HashSet<>();
+
+        for (CriarLivroRequest request : requests) {
+            String isbnNormalizado = normalizarIsbn(request.isbn());
+
+            if (!isbns.add(isbnNormalizado)) {
+                throw new ResponseStatusException(HttpStatus.CONFLICT, "A lista possui ISBNs duplicados");
+            }
+
+            validarIsbnDuplicado(isbnNormalizado, null);
+        }
+    }
+
+    private void validarIsbnDuplicado(String isbn, UUID livroId) {
+        boolean duplicado = livroId == null
+                ? livroRepository.existsByIsbnIgnoreCase(isbn)
+                : livroRepository.existsByIsbnIgnoreCaseAndIdNot(isbn, livroId);
+
+        if (duplicado) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Já existe um livro cadastrado com este ISBN");
+        }
+    }
+
+    private String normalizarIsbn(String isbn) {
+        return isbn.replaceAll("[^0-9Xx]", "").toUpperCase();
     }
 }

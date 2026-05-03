@@ -74,7 +74,7 @@
           <div class="form-group">
             <label class="form-label">Data Empréstimo *</label>
             <input type="date" class="form-control" [class.is-invalid]="isInvalid('dataEmprestimo')"
-              formControlName="dataEmprestimo" />
+              formControlName="dataEmprestimo" [max]="getTodayDate()" />
             @if (isInvalid('dataEmprestimo')) {
             <span class="form-error">Data de empréstimo é obrigatória</span>
             }

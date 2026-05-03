@@ -24,6 +24,7 @@ import java.util.UUID;
 public class UsuarioService {
 
     private final UsuarioRepository usuarioRepository;
+    private final EmprestimoService emprestimoService;
 
     public UsuarioResponse criarUsuario(CriarUsuarioRequest request){
         if (usuarioRepository.existsByEmail(request.email())) {
@@ -54,14 +55,14 @@ public class UsuarioService {
 
     public void deletar(UUID id) {
         usuarioRepository.findByIdAndAtivoTrue(id).ifPresent(usuario -> {
+            if (emprestimoService.usuarioPossuiEmprestimosAtivos(id)) {
+                throw new ResponseStatusException(HttpStatus.CONFLICT,
+                        "Usuário possui empréstimos ativos e não pode ser excluído");
+            }
+
             usuario.setAtivo(false);
             usuarioRepository.save(usuario);
         });
-    }
-
-    public Usuario obterUsuario(UUID id) {
-        return usuarioRepository.findByIdAndAtivoTrue(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuário não encontrado ou inativo"));
     }
 
     public ResponseEntity<ObterUsuarioResponse> alterar(AtualizarUsuarioRequest request) {

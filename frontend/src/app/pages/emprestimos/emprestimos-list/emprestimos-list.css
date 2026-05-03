@@ -79,3 +79,47 @@
   color: #7dd3fc;
   border: 1px solid rgba(56, 189, 248, 0.2);
 }
+
+.table-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 4px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.result-count {
+  font-size: 0.8rem;
+  color: var(--text-tertiary);
+}
+
+.pagination {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.btn-page {
+  min-width: 36px;
+  justify-content: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.btn-page-active {
+  background: rgba(99, 102, 241, 0.15) !important;
+  color: var(--primary-400) !important;
+  font-weight: 600;
+}
+
+.pagination .btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+@media (max-width: 768px) {
+  .table-footer {
+    flex-direction: column;
+    align-items: center;
+  }
+}

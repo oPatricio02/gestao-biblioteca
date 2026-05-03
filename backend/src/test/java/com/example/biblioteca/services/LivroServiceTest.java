@@ -15,6 +15,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -36,9 +37,10 @@ class LivroServiceTest {
 
     @Test
     void testCriarLivro() {
-        CriarLivroRequest request = new CriarLivroRequest("Titulo", "Autor", "ISBN", LocalDate.now(), "Categoria");
-        Livro livro = new Livro(UUID.randomUUID(), "Titulo", "Autor", "ISBN", LocalDate.now(), "Categoria", true, true);
+        CriarLivroRequest request = new CriarLivroRequest("Titulo", "Autor", "9780306406157", LocalDate.now(), "Categoria");
+        Livro livro = new Livro(UUID.randomUUID(), "Titulo", "Autor", "9780306406157", LocalDate.now(), "Categoria", true, true);
         
+        when(livroRepository.existsByIsbnIgnoreCase("9780306406157")).thenReturn(false);
         when(livroRepository.save(any(Livro.class))).thenReturn(livro);
 
         LivroResponse response = livroService.criar(request);
@@ -50,11 +52,13 @@ class LivroServiceTest {
 
     @Test
     void testCriarEmLote() {
-        CriarLivroRequest req1 = new CriarLivroRequest("T1", "A1", "I1", LocalDate.now(), "C1");
-        CriarLivroRequest req2 = new CriarLivroRequest("T2", "A2", "I2", LocalDate.now(), "C2");
-        Livro l1 = new Livro(UUID.randomUUID(), "T1", "A1", "I1", LocalDate.now(), "C1", true, true);
-        Livro l2 = new Livro(UUID.randomUUID(), "T2", "A2", "I2", LocalDate.now(), "C2", true, true);
+        CriarLivroRequest req1 = new CriarLivroRequest("T1", "A1", "9780306406157", LocalDate.now(), "C1");
+        CriarLivroRequest req2 = new CriarLivroRequest("T2", "A2", "8535902775", LocalDate.now(), "C2");
+        Livro l1 = new Livro(UUID.randomUUID(), "T1", "A1", "9780306406157", LocalDate.now(), "C1", true, true);
+        Livro l2 = new Livro(UUID.randomUUID(), "T2", "A2", "8535902775", LocalDate.now(), "C2", true, true);
 
+        when(livroRepository.existsByIsbnIgnoreCase("9780306406157")).thenReturn(false);
+        when(livroRepository.existsByIsbnIgnoreCase("8535902775")).thenReturn(false);
         when(livroRepository.saveAll(anyList())).thenReturn(List.of(l1, l2));
 
         List<LivroResponse> response = livroService.criarEmLote(List.of(req1, req2));
@@ -117,12 +121,26 @@ class LivroServiceTest {
     }
 
     @Test
+    void testDeletarLivroComEmprestimoAtivo() {
+        UUID id = UUID.randomUUID();
+        Livro livro = new Livro(id, "Titulo", "Autor", "ISBN", LocalDate.now(), "Categoria", true, false);
+        when(livroRepository.findByIdAndAtivoTrue(id)).thenReturn(Optional.of(livro));
+
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> livroService.deletar(id));
+
+        assertEquals(HttpStatus.CONFLICT, exception.getStatusCode());
+        assertEquals("Livro possui empréstimos ativos e não pode ser excluído", exception.getReason());
+        verify(livroRepository, never()).save(any(Livro.class));
+    }
+
+    @Test
     void testAlterarEncontrado() {
         UUID id = UUID.randomUUID();
-        AtualizarLivroRequest request = new AtualizarLivroRequest(id, "Titulo Atualizado", "Autor", "ISBN", LocalDate.now(), "Categoria");
-        Livro livro = new Livro(id, "Titulo", "Autor", "ISBN", LocalDate.now(), "Categoria", true, true);
+        AtualizarLivroRequest request = new AtualizarLivroRequest(id, "Titulo Atualizado", "Autor", "9780306406157", LocalDate.now(), "Categoria");
+        Livro livro = new Livro(id, "Titulo", "Autor", "9780306406157", LocalDate.now(), "Categoria", true, true);
         
         when(livroRepository.findByIdAndAtivoTrue(id)).thenReturn(Optional.of(livro));
+        when(livroRepository.existsByIsbnIgnoreCaseAndIdNot("9780306406157", id)).thenReturn(false);
 
         var response = livroService.alterar(request);
 
@@ -144,5 +162,28 @@ class LivroServiceTest {
         assertFalse(recomendacoes.isEmpty());
         assertEquals(2, recomendacoes.size());
         verify(livroRepository, times(1)).recomendarLivrosParaUsuario(usuarioId);
+    }
+
+    @Test
+    void testCriarLivroComIsbnDuplicado() {
+        CriarLivroRequest request = new CriarLivroRequest("Titulo", "Autor", "9780306406157", LocalDate.now(), "Categoria");
+        when(livroRepository.existsByIsbnIgnoreCase("9780306406157")).thenReturn(true);
+
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> livroService.criar(request));
+
+        assertEquals(HttpStatus.CONFLICT, exception.getStatusCode());
+        verify(livroRepository, never()).save(any(Livro.class));
+    }
+
+    @Test
+    void testCriarEmLoteComIsbnDuplicadoNaLista() {
+        CriarLivroRequest req1 = new CriarLivroRequest("T1", "A1", "9780306406157", LocalDate.now(), "C1");
+        CriarLivroRequest req2 = new CriarLivroRequest("T2", "A2", "9780306406157", LocalDate.now(), "C2");
+
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class,
+                () -> livroService.criarEmLote(List.of(req1, req2)));
+
+        assertEquals(HttpStatus.CONFLICT, exception.getStatusCode());
+        verify(livroRepository, never()).saveAll(anyList());
     }
 }

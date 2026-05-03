@@ -79,11 +79,15 @@ export class LivrosImportacaoModalComponent {
   }
 
   getThumbnail(item: LivroExternoDto): string {
-    return item.thumbnailUrl || 'assets/placeholder-book.png';
+    return item.thumbnailUrl || '';
   }
 
   getAuthor(item: LivroExternoDto): string {
     return item.autores && item.autores.length > 0 ? item.autores.join(', ') : 'Autor Desconhecido';
+  }
+
+  canImport(item: LivroExternoDto): boolean {
+    return !!item.isbn?.trim();
   }
 
   importarSelecionados() {
@@ -92,12 +96,12 @@ export class LivrosImportacaoModalComponent {
     this.importing.set(true);
     this.error.set('');
 
-    const selectedItems = this.results().filter(item => this.selectedBookIds().has(item.id));
+    const selectedItems = this.results().filter(item => this.selectedBookIds().has(item.id) && this.canImport(item));
     
     const requests: CriarLivroRequest[] = selectedItems.map(item => ({
       titulo: item.titulo,
       autor: this.getAuthor(item),
-      isbn: item.isbn,
+      isbn: item.isbn!,
       categoria: item.categoria,
       dataPublicacao: item.dataPublicacao
     }));

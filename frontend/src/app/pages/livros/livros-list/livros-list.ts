@@ -1,4 +1,5 @@
 import { Component, inject, OnInit, signal, computed } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { LivroService } from '../../../services/livro.service';
@@ -205,9 +206,9 @@ export class LivrosListComponent implements OnInit {
         this.carregarLivros();
         this.showToast('Livro excluído com sucesso!', 'success');
       },
-      error: () => {
+      error: (error: HttpErrorResponse) => {
         this.cancelarExclusao();
-        this.showToast('Erro ao excluir livro', 'error');
+        this.showToast(this.extractErrorMessage(error, 'Erro ao excluir livro'), 'error');
       }
     });
   }
@@ -224,6 +225,10 @@ export class LivrosListComponent implements OnInit {
   showToast(message: string, type: 'success' | 'error') {
     this.toast.set({ message, type });
     setTimeout(() => this.toast.set(null), 3500);
+  }
+
+  private extractErrorMessage(error: HttpErrorResponse, fallback: string): string {
+    return error.error?.message || fallback;
   }
 
   formatIsbn(value: string): string {

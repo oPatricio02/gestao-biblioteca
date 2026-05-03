@@ -9,7 +9,6 @@ export type Theme = 'dark' | 'light';
 export class LayoutService {
   private platformId = inject(PLATFORM_ID);
   
-  // State
   theme = signal<Theme>('dark');
   isSidebarOpenMobile = signal<boolean>(false);
   isSidebarCollapsedDesktop = signal<boolean>(false);
@@ -24,7 +23,6 @@ export class LayoutService {
       if (savedTheme === 'light' || savedTheme === 'dark') {
         this.theme.set(savedTheme);
       } else {
-        // Fallback or system preference, default to dark for this app
         this.theme.set('dark');
       }
       this.applyThemeToBody();

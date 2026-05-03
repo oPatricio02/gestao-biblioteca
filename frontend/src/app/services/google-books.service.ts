@@ -7,7 +7,7 @@ export interface LivroExternoDto {
   id: string;
   titulo: string;
   autores: string[];
-  isbn: string;
+  isbn: string | null;
   categoria: string;
   dataPublicacao: string;
   thumbnailUrl?: string;

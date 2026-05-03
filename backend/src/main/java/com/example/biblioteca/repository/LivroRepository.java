@@ -28,4 +28,8 @@ public interface LivroRepository extends JpaRepository<Livro, UUID> {
     List<Livro> recomendarLivrosParaUsuario(@Param("usuarioId") UUID usuarioId);
 
     List<Livro> findTop20ByTituloContainingIgnoreCaseAndAtivoTrue(String titulo);
+
+    boolean existsByIsbnIgnoreCase(String isbn);
+
+    boolean existsByIsbnIgnoreCaseAndIdNot(String isbn, UUID id);
 }

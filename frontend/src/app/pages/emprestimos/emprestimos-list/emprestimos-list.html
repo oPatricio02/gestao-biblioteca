@@ -96,7 +96,7 @@
 
     @if (totalPages() > 1) {
     <div class="pagination">
-      <button class="btn btn-ghost btn-sm" [disabled]="isFirst()" (click)="previousPage()">
+      <button class="btn btn-ghost btn-sm" [disabled]="isFirst()" (click)="previousPage()" id="btn-prev-page">
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
           stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="m15 18-6-6 6-6" />
@@ -105,13 +105,13 @@
       </button>
 
       @for (p of pages(); track p) {
-      <button class="btn btn-ghost btn-sm btn-page" [class.btn-page-active]="p === currentPage()"
-        (click)="goToPage(p)">
+      <button class="btn btn-ghost btn-sm btn-page" [class.btn-page-active]="p === currentPage()" (click)="goToPage(p)"
+        [attr.id]="'btn-page-' + p">
         {{ p + 1 }}
       </button>
       }
 
-      <button class="btn btn-ghost btn-sm" [disabled]="isLast()" (click)="nextPage()">
+      <button class="btn btn-ghost btn-sm" [disabled]="isLast()" (click)="nextPage()" id="btn-next-page">
         Próxima
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
           stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">

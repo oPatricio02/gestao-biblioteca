@@ -1,4 +1,5 @@
 import { Component, inject, OnInit, signal, computed } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
 import { UsuarioService } from '../../../services/usuario.service';
 import { UsuarioResponse, ObterUsuarioResponse } from '../../../models/usuario.model';
 import { Page } from '../../../models/page.model';
@@ -177,9 +178,9 @@ export class UsuariosListComponent implements OnInit {
         this.carregarUsuarios();
         this.showToast('Usuário excluído com sucesso!', 'success');
       },
-      error: () => {
+      error: (error: HttpErrorResponse) => {
         this.cancelarExclusao();
-        this.showToast('Erro ao excluir usuário', 'error');
+        this.showToast(this.extractErrorMessage(error, 'Erro ao excluir usuário'), 'error');
       }
     });
   }
@@ -187,5 +188,9 @@ export class UsuariosListComponent implements OnInit {
   showToast(message: string, type: 'success' | 'error') {
     this.toast.set({ message, type });
     setTimeout(() => this.toast.set(null), 3500);
+  }
+
+  private extractErrorMessage(error: HttpErrorResponse, fallback: string): string {
+    return error.error?.message || fallback;
   }
 }

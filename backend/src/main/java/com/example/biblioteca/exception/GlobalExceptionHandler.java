@@ -1,13 +1,16 @@
 package com.example.biblioteca.exception;
 
 import jakarta.validation.ConstraintViolationException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import java.util.Map;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -30,5 +33,17 @@ public class GlobalExceptionHandler {
                 .map(erro -> new ErroDeValidacao(erro.getPropertyPath().toString(), erro.getMessage()))
                 .collect(Collectors.toList());
         return ResponseEntity.badRequest().body(erros);
+    }
+
+    @ExceptionHandler(ResponseStatusException.class)
+    public ResponseEntity<Map<String, String>> tratarResponseStatusException(ResponseStatusException ex) {
+        String mensagem = ex.getReason() != null ? ex.getReason() : "Erro na requisição";
+        return ResponseEntity.status(ex.getStatusCode()).body(Map.of("message", mensagem));
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<Map<String, String>> tratarViolacaoDeIntegridade(DataIntegrityViolationException ex) {
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(Map.of("message", "Operação não pôde ser concluída porque os dados violam uma restrição do banco"));
     }
 }

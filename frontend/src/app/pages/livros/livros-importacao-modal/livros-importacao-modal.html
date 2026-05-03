@@ -64,7 +64,8 @@
       } @else {
       <div class="book-grid">
         @for (item of results(); track item.id) {
-        <div class="book-card" [class.selected]="isSelected(item.id)" (click)="toggleSelection(item.id)">
+        <div class="book-card" [class.selected]="isSelected(item.id)" [class.unimportable]="!canImport(item)"
+          (click)="canImport(item) && toggleSelection(item.id)">
           <div class="selection-indicator">
             @if (isSelected(item.id)) {
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -85,6 +86,9 @@
               <span class="badge badge-neutral">{{ item.categoria }}</span>
               <span class="book-year">{{ item.dataPublicacao | slice:0:4 }}</span>
             </div>
+            @if (!canImport(item)) {
+            <p class="book-author">Importação indisponível: livro sem ISBN.</p>
+            }
           </div>
         </div>
         }

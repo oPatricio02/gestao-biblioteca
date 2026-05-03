@@ -59,8 +59,6 @@ public class GoogleBooksClient {
             }
         }
         
-        if (isbn == null) isbn = "0000000000000";
-        
         String categoria = (info.categories() != null && !info.categories().isEmpty()) 
                 ? info.categories().get(0) : "Geral";
                 
