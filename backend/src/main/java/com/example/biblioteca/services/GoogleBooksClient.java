@@ -9,6 +9,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -25,7 +26,7 @@ public class GoogleBooksClient {
     public List<LivroExternoDto> buscarLivros(String titulo) {
         UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(GOOGLE_BOOKS_API_URL)
                 .queryParam("q", titulo)
-                .queryParam("maxResults", 20);
+                .queryParam("maxResults", 30);
                 
         if (apiKey != null && !apiKey.trim().isEmpty()) {
             builder.queryParam("key", apiKey);
@@ -41,40 +42,25 @@ public class GoogleBooksClient {
 
         return response.items().stream()
                 .map(this::mapToDto)
+                .filter(Objects::nonNull)
                 .collect(Collectors.toList());
     }
 
     private LivroExternoDto mapToDto(GoogleBookItem item) {
         VolumeInfo info = item.volumeInfo();
-        
-        String isbn = null;
-        if (info.industryIdentifiers() != null) {
-            for (IndustryIdentifier id : info.industryIdentifiers()) {
-                if ("ISBN_13".equals(id.type())) {
-                    isbn = id.identifier();
-                    break;
-                } else if ("ISBN_10".equals(id.type()) && isbn == null) {
-                    isbn = id.identifier();
-                }
-            }
-        }
-        
+
+        String isbn = getInfoIsbn(info);
+        if (isbn == null) return null;
+
         String categoria = (info.categories() != null && !info.categories().isEmpty()) 
-                ? info.categories().get(0) : "Geral";
-                
-        String data = info.publishedDate();
-        if (data == null) {
-            data = java.time.LocalDate.now().toString();
-        } else if (data.length() == 4) {
-            data = data + "-01-01";
-        } else if (data.length() == 7) {
-            data = data + "-01";
-        }
-        
+                ? info.categories().getFirst() : "Geral";
+
+        String data = getData(info);
+
         String thumbnailUrl = null;
         if (info.imageLinks() != null) {
-            thumbnailUrl = info.imageLinks().thumbnail() != null 
-                ? info.imageLinks().thumbnail() 
+            thumbnailUrl = info.imageLinks().thumbnail() != null
+                ? info.imageLinks().thumbnail()
                 : info.imageLinks().smallThumbnail();
         }
 
@@ -87,5 +73,42 @@ public class GoogleBooksClient {
                 data,
                 thumbnailUrl
         );
+    }
+
+    private String getData(VolumeInfo info) {
+        String data = info.publishedDate();
+        if (data == null) {
+            return "1800-01-01";
+        } else if (data.length() == 4) {
+            data = data + "-01-01";
+        } else if (data.length() == 7) {
+            data = data + "-01";
+        }
+        return data;
+    }
+
+    private String getInfoIsbn(VolumeInfo info) {
+        if (info == null) {
+            return null;
+        }
+
+        String isbn = null;
+        if (info.industryIdentifiers() != null) {
+            isbn = getIsbn(info);
+        }
+
+        return isbn;
+    }
+
+    private String getIsbn(VolumeInfo info) {
+        String isbn = null;
+        for (IndustryIdentifier id : info.industryIdentifiers()) {
+            if ("ISBN_13".equals(id.type())) {
+                isbn = id.identifier();
+            } else if ("ISBN_10".equals(id.type())) {
+                isbn = id.identifier();
+            }
+        }
+        return isbn;
     }
 }
