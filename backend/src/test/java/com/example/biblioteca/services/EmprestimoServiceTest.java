@@ -8,7 +8,6 @@ import com.example.biblioteca.dto.CriarEmprestimoRequest;
 import com.example.biblioteca.dto.EmprestimoResponse;
 import com.example.biblioteca.enums.StatusEmprestimo;
 import com.example.biblioteca.repository.EmprestimoRepository;
-import com.example.biblioteca.repository.UsuarioRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -33,7 +32,7 @@ class EmprestimoServiceTest {
     @Mock
     private EmprestimoRepository emprestimoRepository;
     @Mock
-    private UsuarioRepository usuarioRepository;
+    private UsuarioService usuarioService;
     @Mock
     private LivroService livroService;
 
@@ -50,9 +49,8 @@ class EmprestimoServiceTest {
         
         CriarEmprestimoRequest request = new CriarEmprestimoRequest(usuarioId, livroId, null, LocalDate.now().plusDays(7));
         
-        when(usuarioRepository.findByIdAndAtivoTrue(usuarioId)).thenReturn(Optional.of(usuario));
+        when(usuarioService.obterUsuario(usuarioId)).thenReturn(usuario);
         when(livroService.obterLivro(livroId)).thenReturn(livro);
-        when(emprestimoRepository.existsByLivroIdAndStatusIn(eq(livroId), any())).thenReturn(false);
 
         Emprestimo emprestimoSalvo = Emprestimo.builder()
                 .id(UUID.randomUUID())
@@ -79,7 +77,7 @@ class EmprestimoServiceTest {
     void deveFalharAoCriarEmprestimoQuandoUsuarioNaoEncontrado() {
         CriarEmprestimoRequest request = new CriarEmprestimoRequest(UUID.randomUUID(), UUID.randomUUID(), null, LocalDate.now().plusDays(7));
         
-        when(usuarioRepository.findByIdAndAtivoTrue(request.usuarioId())).thenReturn(Optional.empty());
+        when(usuarioService.obterUsuario(request.usuarioId())).thenThrow(new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuário não encontrado"));
 
         ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> emprestimoService.criar(request));
 
@@ -98,7 +96,7 @@ class EmprestimoServiceTest {
         
         CriarEmprestimoRequest request = new CriarEmprestimoRequest(usuarioId, livroId, null, LocalDate.now().plusDays(7));
         
-        when(usuarioRepository.findByIdAndAtivoTrue(usuarioId)).thenReturn(Optional.of(usuario));
+        when(usuarioService.obterUsuario(usuarioId)).thenReturn(usuario);
         when(livroService.obterLivro(livroId)).thenReturn(livro);
 
         ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> emprestimoService.criar(request));
@@ -167,16 +165,5 @@ class EmprestimoServiceTest {
         assertEquals(StatusEmprestimo.ATRASADO, emp1.getStatus());
         assertEquals(StatusEmprestimo.ATRASADO, emp2.getStatus());
         verify(emprestimoRepository, times(1)).saveAll(emprestimos);
-    }
-
-    @Test
-    void deveInformarQuandoUsuarioPossuiEmprestimosAtivos() {
-        UUID usuarioId = UUID.randomUUID();
-        when(emprestimoRepository.existsByUsuarioIdAndStatusIn(eq(usuarioId), any())).thenReturn(true);
-
-        boolean possuiEmprestimosAtivos = emprestimoService.usuarioPossuiEmprestimosAtivos(usuarioId);
-
-        assertTrue(possuiEmprestimosAtivos);
-        verify(emprestimoRepository, times(1)).existsByUsuarioIdAndStatusIn(eq(usuarioId), any());
     }
 }

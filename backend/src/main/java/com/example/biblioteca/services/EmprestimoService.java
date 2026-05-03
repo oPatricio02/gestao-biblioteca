@@ -8,7 +8,6 @@ import com.example.biblioteca.dto.CriarEmprestimoRequest;
 import com.example.biblioteca.dto.EmprestimoResponse;
 import com.example.biblioteca.enums.StatusEmprestimo;
 import com.example.biblioteca.repository.EmprestimoRepository;
-import com.example.biblioteca.repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -18,7 +17,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -28,11 +26,8 @@ import org.springframework.scheduling.annotation.Scheduled;
 @RequiredArgsConstructor
 public class EmprestimoService {
 
-    private static final EnumSet<StatusEmprestimo> STATUS_EMPRESTIMO_ABERTO =
-            EnumSet.of(StatusEmprestimo.ATIVO, StatusEmprestimo.ATRASADO);
-
     private final EmprestimoRepository emprestimoRepository;
-    private final UsuarioRepository usuarioRepository;
+    private final UsuarioService usuarioService;
     private final LivroService livroService;
 
     @Scheduled(cron = "0 0 0 * * ?", zone = "America/Sao_Paulo")
@@ -47,11 +42,10 @@ public class EmprestimoService {
     }
 
     public ResponseEntity<EmprestimoResponse> criar(CriarEmprestimoRequest request) {
-        Usuario usuario = usuarioRepository.findByIdAndAtivoTrue(request.usuarioId())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuário não encontrado ou inativo"));
+        Usuario usuario = usuarioService.obterUsuario(request.usuarioId());
         Livro livro = livroService.obterLivro(request.livroId());
 
-        if (!livro.isDisponivel() || existeOutroEmprestimoAberto(livro.getId(), null)) {
+        if (!livro.isDisponivel()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "O livro já está emprestado e não está disponível");
         }
 
@@ -98,10 +92,6 @@ public class EmprestimoService {
         return ResponseEntity.ok(new EmprestimoResponse(atualizado));
     }
 
-    public boolean usuarioPossuiEmprestimosAtivos(UUID usuarioId) {
-        return emprestimoRepository.existsByUsuarioIdAndStatusIn(usuarioId, STATUS_EMPRESTIMO_ABERTO);
-    }
-
     private void sincronizarDisponibilidadeDoLivro(Emprestimo emprestimo,
                                                    StatusEmprestimo statusAnterior,
                                                    StatusEmprestimo novoStatus) {
@@ -112,8 +102,10 @@ public class EmprestimoService {
             return;
         }
 
-        if (STATUS_EMPRESTIMO_ABERTO.contains(novoStatus)) {
-            if (statusAnterior == StatusEmprestimo.DEVOLVIDO && existeOutroEmprestimoAberto(livro.getId(), emprestimo.getId())) {
+        if (StatusEmprestimo.STATUS_ABERTOS.contains(novoStatus)) {
+            if (statusAnterior == StatusEmprestimo.DEVOLVIDO &&
+                    emprestimoRepository.existsByLivroIdAndStatusInAndIdNot(livro.getId(), StatusEmprestimo.STATUS_ABERTOS, emprestimo.getId())) {
+
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                         "Não é possível reabrir este empréstimo porque o livro já possui outro empréstimo em aberto");
             }
@@ -122,11 +114,4 @@ public class EmprestimoService {
         }
     }
 
-    private boolean existeOutroEmprestimoAberto(UUID livroId, UUID emprestimoIdIgnorado) {
-        if (emprestimoIdIgnorado == null) {
-            return emprestimoRepository.existsByLivroIdAndStatusIn(livroId, STATUS_EMPRESTIMO_ABERTO);
-        }
-
-        return emprestimoRepository.existsByLivroIdAndStatusInAndIdNot(livroId, STATUS_EMPRESTIMO_ABERTO, emprestimoIdIgnorado);
-    }
 }

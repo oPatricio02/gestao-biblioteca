@@ -5,6 +5,8 @@ import com.example.biblioteca.dto.AtualizarUsuarioRequest;
 import com.example.biblioteca.dto.CriarUsuarioRequest;
 import com.example.biblioteca.dto.UsuarioResponse;
 import com.example.biblioteca.dto.ObterUsuarioResponse;
+import com.example.biblioteca.enums.StatusEmprestimo;
+import com.example.biblioteca.repository.EmprestimoRepository;
 import com.example.biblioteca.repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -24,7 +26,7 @@ import java.util.UUID;
 public class UsuarioService {
 
     private final UsuarioRepository usuarioRepository;
-    private final EmprestimoService emprestimoService;
+    private final EmprestimoRepository emprestimoRepository;
 
     public UsuarioResponse criarUsuario(CriarUsuarioRequest request){
         if (usuarioRepository.existsByEmail(request.email())) {
@@ -53,9 +55,14 @@ public class UsuarioService {
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
+    public Usuario obterUsuario(UUID id) {
+        return usuarioRepository.findByIdAndAtivoTrue(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuário não encontrado ou inativo"));
+    }
+
     public void deletar(UUID id) {
         usuarioRepository.findByIdAndAtivoTrue(id).ifPresent(usuario -> {
-            if (emprestimoService.usuarioPossuiEmprestimosAtivos(id)) {
+            if (emprestimoRepository.existsByUsuarioIdAndStatusIn(id, StatusEmprestimo.STATUS_ABERTOS)) {
                 throw new ResponseStatusException(HttpStatus.CONFLICT,
                         "Usuário possui empréstimos ativos e não pode ser excluído");
             }

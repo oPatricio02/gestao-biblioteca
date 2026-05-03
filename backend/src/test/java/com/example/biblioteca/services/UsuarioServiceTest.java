@@ -4,6 +4,7 @@ import com.example.biblioteca.domain.Usuario;
 import com.example.biblioteca.dto.AtualizarUsuarioRequest;
 import com.example.biblioteca.dto.CriarUsuarioRequest;
 import com.example.biblioteca.dto.UsuarioResponse;
+import com.example.biblioteca.repository.EmprestimoRepository;
 import com.example.biblioteca.repository.UsuarioRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -32,7 +33,7 @@ class UsuarioServiceTest {
     private UsuarioRepository usuarioRepository;
 
     @Mock
-    private EmprestimoService emprestimoService;
+    private EmprestimoRepository emprestimoRepository;
 
     @InjectMocks
     private UsuarioService usuarioService;
@@ -106,7 +107,7 @@ class UsuarioServiceTest {
         UUID id = UUID.randomUUID();
         Usuario usuario = new Usuario(id, "Teste Teste", "teste@teste.com", null, "123456789", true);
         when(usuarioRepository.findByIdAndAtivoTrue(id)).thenReturn(Optional.of(usuario));
-        when(emprestimoService.usuarioPossuiEmprestimosAtivos(id)).thenReturn(false);
+        when(emprestimoRepository.existsByUsuarioIdAndStatusIn(eq(id), any())).thenReturn(false);
 
         usuarioService.deletar(id);
 
@@ -119,7 +120,7 @@ class UsuarioServiceTest {
         UUID id = UUID.randomUUID();
         Usuario usuario = new Usuario(id, "Teste Teste", "teste@teste.com", null, "123456789", true);
         when(usuarioRepository.findByIdAndAtivoTrue(id)).thenReturn(Optional.of(usuario));
-        when(emprestimoService.usuarioPossuiEmprestimosAtivos(id)).thenReturn(true);
+        when(emprestimoRepository.existsByUsuarioIdAndStatusIn(eq(id), any())).thenReturn(true);
 
         ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> usuarioService.deletar(id));
 

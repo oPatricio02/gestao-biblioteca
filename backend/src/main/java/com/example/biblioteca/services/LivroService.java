@@ -84,6 +84,7 @@ public class LivroService {
             }
 
             livro.setAtivo(false);
+            livro.setDisponivel(false);
             livroRepository.save(livro);
         });
     }
